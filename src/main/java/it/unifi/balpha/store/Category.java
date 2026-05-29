@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Category {
-	private String name;
-	private List<Product> products;
+	private final String name;
+	private final List<Product> products;
 	
 	public Category(String name) {
-		if (name == null || name.trim().isEmpty()) {
-			throw new IllegalArgumentException("Category name cannot be empty");
-		}
+		validate(name);
 		
 		this.name = name;
 		this.products = new ArrayList<>();
@@ -30,5 +28,11 @@ public class Category {
 		}
 		
 		this.products.add(product);
+	}
+	
+	private void validate(String name) {
+		if (name == null || name.trim().isEmpty()) {
+			throw new IllegalArgumentException("Category name cannot be empty");
+		}
 	}
 }
