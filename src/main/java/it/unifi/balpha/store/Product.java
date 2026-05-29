@@ -5,6 +5,14 @@ public class Product {
     private final double price;
 
     public Product(String name, double price) {
+    	if (name == null || name.trim().isEmpty()) {
+    		throw new IllegalArgumentException("Product name cannot be empty");
+    	}
+    	
+    	if (price < 0) {
+    		throw new IllegalArgumentException("Product price cannot be negative");
+    	}
+    	
         this.name = name;
         this.price = price;
     }
