@@ -23,6 +23,6 @@ class InventoryPresenterTest {
         presenter.addProduct("Apple", 1.50);
 
         Product expectedProduct = new Product("Apple", 1.50);
-        verify(inventoryService).saveProduct(expectedProduct);
+        verify(inventoryService).addProduct(Mockito.refEq(expectedProduct));
     }
 }
