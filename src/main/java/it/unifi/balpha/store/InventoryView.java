@@ -6,7 +6,16 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InventoryView extends JFrame {
 
@@ -16,6 +25,9 @@ public class InventoryView extends JFrame {
     private JTextField priceTextBox;
     private JComboBox<Category> categoryComboBox;
     private JButton addProductButton;
+    
+    private JTable productsTable;
+    private DefaultTableModel tableModel;
     
     private InventoryPresenter presenter;
 
@@ -48,6 +60,21 @@ public class InventoryView extends JFrame {
         addProductButton.setName("addProductButton");
         addProductButton.setEnabled(false); 
         add(addProductButton);
+        
+        String[] columnNames = { "Product Name", "Price" };
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; 
+            }
+        };
+        
+        productsTable = new JTable(tableModel);
+        productsTable.setName("productsTable");
+        
+        JScrollPane scrollPane = new JScrollPane(productsTable);
+        scrollPane.setPreferredSize(new Dimension(350, 150));
+        add(scrollPane);
     }
 
     private void setupListeners() {
@@ -68,6 +95,15 @@ public class InventoryView extends JFrame {
         };
         nameTextBox.getDocument().addDocumentListener(fieldsListener);
         priceTextBox.getDocument().addDocumentListener(fieldsListener);
+    }
+    
+    public void showProducts(List<Product> products) {
+        tableModel.setRowCount(0);
+        if (products != null) {
+            for (Product p : products) {
+                tableModel.addRow(new Object[] { p.getName(), String.valueOf(p.getPrice()) });
+            }
+        }
     }
     
     public void setPresenter(InventoryPresenter presenter) {
