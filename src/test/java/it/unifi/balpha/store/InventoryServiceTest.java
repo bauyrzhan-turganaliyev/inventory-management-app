@@ -46,4 +46,28 @@ class InventoryServiceTest {
             inventoryService.addProductToCategory(product, nonExistingCategoryId)
         );
     }
+    
+    @Test
+    void testGetAllProductsReturnsList() {
+        java.util.List<Product> expectedProducts = java.util.Arrays.asList(
+            new Product("Keyboard", 50.0),
+            new Product("Mouse", 25.0)
+        );
+
+        when(productRepository.findAll()).thenReturn(expectedProducts);
+
+        java.util.List<Product> actualProducts = inventoryService.getAllProducts();
+
+        assertEquals(expectedProducts, actualProducts);
+        verify(productRepository).findAll();
+    }
+
+    @Test
+    void testDeleteProductCallsRepository() {
+        Long productId = 1L;
+
+        inventoryService.deleteProduct(productId);
+
+        verify(productRepository).deleteById(productId);
+    }
 }
