@@ -41,9 +41,9 @@ public class InventoryPresenterImpl implements InventoryPresenter {
         if (product != null && product.getId() != null) {
             inventoryService.deleteProduct(product.getId());
             
-            if (view != null) {
-                view.showProducts(inventoryService.getAllProducts());
-            }
+            view.showProducts(inventoryService.getAllProducts());
+        } else {
+            System.out.println("Ошибка: Попытка удалить продукт без ID или null!");
         }
     }
 }
