@@ -44,4 +44,21 @@ class InventoryPresenterTest {
         verify(inventoryService).getAllProducts();
         verify(mockView).showProducts(updatedList);
     }
+    
+    @Test
+    void testDeleteProductShouldCallServiceAndRefreshView() {
+        InventoryView mockView = Mockito.mock(InventoryView.class);
+        presenter.setView(mockView);
+
+        Product productToDelete = Mockito.mock(Product.class);
+        when(productToDelete.getId()).thenReturn(42L);
+
+        java.util.List<Product> remainingProducts = java.util.Arrays.asList(new Product[] {}); 
+        when(inventoryService.getAllProducts()).thenReturn(remainingProducts);
+
+        presenter.deleteProduct(productToDelete);
+
+        verify(inventoryService).deleteProduct(42L);
+        verify(mockView).showProducts(remainingProducts);
+    }
 }

@@ -27,4 +27,15 @@ public class InventoryPresenterImpl implements InventoryPresenter {
             view.showProducts(inventoryService.getAllProducts());
         }
     }
+    
+    @Override
+    public void deleteProduct(Product product) {
+        if (product != null && product.getId() != null) {
+            inventoryService.deleteProduct(product.getId());
+            
+            if (view != null) {
+                view.showProducts(inventoryService.getAllProducts());
+            }
+        }
+    }
 }

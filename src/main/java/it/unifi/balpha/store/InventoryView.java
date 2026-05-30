@@ -26,9 +26,12 @@ public class InventoryView extends JFrame {
     private JComboBox<Category> categoryComboBox;
     private JButton addProductButton;
     
+    private JButton deleteProductButton;
+    
     private JTable productsTable;
     private DefaultTableModel tableModel;
     
+    private List<Product> currentProducts = new ArrayList<>();
     private InventoryPresenter presenter;
 
     public InventoryView() {
@@ -61,6 +64,11 @@ public class InventoryView extends JFrame {
         addProductButton.setEnabled(false); 
         add(addProductButton);
         
+        deleteProductButton = new JButton("Delete Product");
+        deleteProductButton.setName("deleteProductButton");
+        deleteProductButton.setEnabled(false);
+        add(deleteProductButton);
+        
         String[] columnNames = { "Product Name", "Price" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -87,6 +95,18 @@ public class InventoryView extends JFrame {
                 presenter.addProduct(name, price, selectedCategory);
             }
         });
+    	
+    	deleteProductButton.addActionListener(e -> {
+            int selectedRow = productsTable.getSelectedRow();
+            if (presenter != null && selectedRow >= 0 && selectedRow < currentProducts.size()) {
+                Product selectedProduct = currentProducts.get(selectedRow);
+                presenter.deleteProduct(selectedProduct);
+            }
+        });
+    	
+        productsTable.getSelectionModel().addListSelectionListener(e -> {
+            deleteProductButton.setEnabled(productsTable.getSelectedRow() >= 0);
+        });
 
         DocumentListener fieldsListener = new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { checkFields(); }
@@ -98,12 +118,14 @@ public class InventoryView extends JFrame {
     }
     
     public void showProducts(List<Product> products) {
-        tableModel.setRowCount(0);
-        if (products != null) {
-            for (Product p : products) {
-                tableModel.addRow(new Object[] { p.getName(), String.valueOf(p.getPrice()) });
-            }
+        this.currentProducts = products != null ? products : new ArrayList<>();
+        
+        tableModel.setRowCount(0); 
+        for (Product p : currentProducts) {
+            tableModel.addRow(new Object[] { p.getName(), String.valueOf(p.getPrice()) });
         }
+        
+        deleteProductButton.setEnabled(false);
     }
     
     public void setPresenter(InventoryPresenter presenter) {
@@ -144,4 +166,5 @@ public class InventoryView extends JFrame {
     public JTextField getNameTextBox() { return nameTextBox; }
     public JTextField getPriceTextBox() { return priceTextBox; }
     public JButton getAddProductButton() { return addProductButton; }
+    public JButton getDeleteProductButton() { return deleteProductButton; }
 }
