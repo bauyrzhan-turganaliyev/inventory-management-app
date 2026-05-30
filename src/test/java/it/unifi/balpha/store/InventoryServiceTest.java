@@ -34,4 +34,16 @@ class InventoryServiceTest {
 
         verify(productRepository).save(product);
     }
+    
+    @Test
+    void testAddProductToCategoryThrowsWhenCategoryDoesNotExist() {
+        Product product = new Product("Mouse", 25.0);
+        Long nonExistingCategoryId = 99L;
+
+        when(categoryRepository.findById(nonExistingCategoryId)).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () -> 
+            inventoryService.addProductToCategory(product, nonExistingCategoryId)
+        );
+    }
 }
