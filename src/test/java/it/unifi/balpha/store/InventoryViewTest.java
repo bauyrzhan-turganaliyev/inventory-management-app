@@ -7,6 +7,8 @@ import org.assertj.swing.core.BasicRobot;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.verify;
 
 class InventoryViewTest {
 
@@ -63,5 +65,19 @@ class InventoryViewTest {
         window.textBox("priceTextBox").enterText("not-a-number");
 
         window.button("addProductButton").requireDisabled();
+    }
+    
+    @Test
+    void testAddButtonShouldCallPresenterToWithCorrectData() {
+        InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
+        
+        inventoryView.setPresenter(presenter);
+
+        inventoryView.getNameTextBox().setText("Banana");
+        inventoryView.getPriceTextBox().setText("2.30");
+
+        inventoryView.getAddProductButton().doClick();
+
+        verify(presenter).addProduct("Banana", 2.30);
     }
 }
