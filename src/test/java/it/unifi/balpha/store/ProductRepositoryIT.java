@@ -10,7 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ProductRepositoryTest {
+class ProductRepositoryIT {
     private EntityManagerFactory emf;
     private EntityManager em;
 
