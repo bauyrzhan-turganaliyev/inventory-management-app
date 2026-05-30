@@ -11,7 +11,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>11</maven.compiler.release>
     <junit.version>5.10.2</junit.version>
   </properties>
 
@@ -58,6 +58,13 @@
         <version>5.11.0</version>
         <scope>test</scope>
     </dependency>
+
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-swing-junit</artifactId>
+        <version>3.17.1</version>
+        <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -72,13 +79,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>3.2.2</version>
-            <configuration>
-                <argLine>
-                    --add-opens java.desktop/java.awt=ALL-UNNAMED
-                    --add-opens java.desktop/javax.swing=ALL-UNNAMED
-                    --add-opens java.desktop/javax.swing.plaf.basic=ALL-UNNAMED
-                </argLine>
-            </configuration>
         </plugin>
 
         <plugin>
