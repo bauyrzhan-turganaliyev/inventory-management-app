@@ -48,8 +48,22 @@ public class InventoryView extends JFrame {
     }
 
     private void checkFields() {
-        boolean nameValid = !nameTextBox.getText().trim().isEmpty();
-        boolean priceValid = !priceTextBox.getText().trim().isEmpty();
+        String nameText = nameTextBox.getText().trim();
+        String priceText = priceTextBox.getText().trim();
+
+        boolean nameValid = !nameText.isEmpty();
+        boolean priceValid = false;
+
+        if (!priceText.isEmpty()) {
+            try {
+                double price = Double.parseDouble(priceText);
+                if (price > 0) {
+                    priceValid = true;
+                }
+            } catch (NumberFormatException e) {
+                priceValid = false;
+            }
+        }
         
         addProductButton.setEnabled(nameValid && priceValid);
     }
