@@ -1,8 +1,20 @@
 package it.unifi.balpha.store;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Product {
-    private final String name;
-    private final double price;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
+    private String name;
+    private double price;
+    
+    protected Product() {}
 
     public Product(String name, double price) {
     	validate(name, price);
@@ -19,6 +31,10 @@ public class Product {
     	if (price < 0) {
     		throw new IllegalArgumentException("Product price cannot be negative");
     	}
+    }
+    
+    public Long getId() {
+    	return id;
     }
 
     public String getName() {
