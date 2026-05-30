@@ -18,11 +18,18 @@ public class InventoryView extends JFrame {
     private InventoryPresenter presenter;
 
     public InventoryView() {
+        setupWindow();
+        createComponents();
+        setupListeners();
+    }
+    
+    private void setupWindow() {
         setTitle("Inventory Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 200);
         setLayout(new FlowLayout());
+    }
 
+    private void createComponents() {
         nameTextBox = new JTextField(10);
         nameTextBox.setName("nameTextBox");
         add(nameTextBox);
@@ -35,7 +42,9 @@ public class InventoryView extends JFrame {
         addProductButton.setName("addProductButton");
         addProductButton.setEnabled(false); 
         add(addProductButton);
-        
+    }
+
+    private void setupListeners() {
         addProductButton.addActionListener(e -> {
             if (presenter != null) {
                 String name = nameTextBox.getText().trim();
@@ -45,14 +54,10 @@ public class InventoryView extends JFrame {
         });
 
         DocumentListener fieldsListener = new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) { checkFields(); }
-            @Override
-            public void removeUpdate(DocumentEvent e) { checkFields(); }
-            @Override
-            public void changedUpdate(DocumentEvent e) { checkFields(); }
+            @Override public void insertUpdate(DocumentEvent e) { checkFields(); }
+            @Override public void removeUpdate(DocumentEvent e) { checkFields(); }
+            @Override public void changedUpdate(DocumentEvent e) { checkFields(); }
         };
-
         nameTextBox.getDocument().addDocumentListener(fieldsListener);
         priceTextBox.getDocument().addDocumentListener(fieldsListener);
     }
@@ -62,24 +67,19 @@ public class InventoryView extends JFrame {
     }
 
     private void checkFields() {
-        String nameText = nameTextBox.getText().trim();
-        String priceText = priceTextBox.getText().trim();
+        String name = nameTextBox.getText().trim();
+        String priceStr = priceTextBox.getText().trim();
 
-        boolean nameValid = !nameText.isEmpty();
-        boolean priceValid = false;
+        addProductButton.setEnabled(!name.isEmpty() && isValidPrice(priceStr));
+    }
 
-        if (!priceText.isEmpty()) {
-            try {
-                double price = Double.parseDouble(priceText);
-                if (price > 0) {
-                    priceValid = true;
-                }
-            } catch (NumberFormatException e) {
-                priceValid = false;
-            }
+    private boolean isValidPrice(String priceStr) {
+        try {
+            double price = Double.parseDouble(priceStr);
+            return price > 0; 
+        } catch (NumberFormatException e) {
+            return false;
         }
-        
-        addProductButton.setEnabled(nameValid && priceValid);
     }
 
     public static void main(String[] args) {
