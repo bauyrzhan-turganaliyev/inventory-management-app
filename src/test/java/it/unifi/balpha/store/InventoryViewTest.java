@@ -119,4 +119,31 @@ class InventoryViewTest {
             { "Mouse", "25.0" }
         });
     }
+    
+    @Test
+    void testDeleteButtonShouldBeDisabledUntilAnItemIsSelected() {
+        java.util.List<Product> products = java.util.Arrays.asList(new Product("Keyboard", 50.0));
+        GuiActionRunner.execute(() -> inventoryView.showProducts(products));
+
+        window.button("deleteProductButton").requireDisabled();
+
+        window.table("productsTable").selectRows(0);
+
+        window.button("deleteProductButton").requireEnabled();
+    }
+
+    @Test
+    void testDeleteButtonShouldCallPresenterWithCorrectProduct() {
+        InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
+        inventoryView.setPresenter(presenter);
+
+        Product productToDelete = new Product("Keyboard", 50.0);
+        java.util.List<Product> products = java.util.Arrays.asList(productToDelete);
+        GuiActionRunner.execute(() -> inventoryView.showProducts(products));
+
+        window.table("productsTable").selectRows(0);
+        window.button("deleteProductButton").click();
+
+        verify(presenter).deleteProduct(productToDelete);
+    }
 }
