@@ -1,32 +1,40 @@
 package it.unifi.balpha.store;
 
-import org.assertj.swing.edt.GuiActionRunner;
-import org.assertj.swing.fixture.FrameFixture;
-import org.assertj.swing.junit.runner.GUITestRunner;
-import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import javax.swing.SwingUtilities;
+import java.lang.reflect.InvocationTargetException;
 
-class InventoryViewTest extends AssertJSwingJUnitTestCase {
-    private FrameFixture window;
+import static org.junit.jupiter.api.Assertions.*;
+
+class InventoryViewTest {
+
     private InventoryView inventoryView;
 
-    @Override
-    protected void onSetUp() {
-        GuiActionRunner.execute(() -> {
+    @BeforeEach
+    void setUp() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(() -> {
             inventoryView = new InventoryView();
-            return inventoryView;
+            inventoryView.setVisible(true);
         });
-        
-        window = new FrameFixture(robot(), inventoryView);
-        window.show();
+    }
+
+    @AfterEach
+    void tearDown() throws InterruptedException, InvocationTargetException {
+        SwingUtilities.invokeAndWait(() -> {
+            if (inventoryView != null) {
+                inventoryView.dispose();
+            }
+        });
     }
 
     @Test
     void testWhenFormIsEmptyAddButtonShouldBeDisabled() {
-        window.textBox("nameTextBox").requireEmpty();
-        window.textBox("priceTextBox").requireEmpty();
+        assertEquals("", inventoryView.getNameTextBox().getText());
+        assertEquals("", inventoryView.getPriceTextBox().getText());
         
-        window.button("addProductButton").requireDisabled();
+        assertFalse(inventoryView.getAddProductButton().isEnabled(), 
+            "Кнопка добавления должна быть заблокирована, если поля пусты");
     }
 }
