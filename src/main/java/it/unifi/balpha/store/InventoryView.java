@@ -14,6 +14,8 @@ public class InventoryView extends JFrame {
     private JTextField nameTextBox;
     private JTextField priceTextBox;
     private JButton addProductButton;
+    
+    private InventoryPresenter presenter;
 
     public InventoryView() {
         setTitle("Inventory Management");
@@ -33,6 +35,14 @@ public class InventoryView extends JFrame {
         addProductButton.setName("addProductButton");
         addProductButton.setEnabled(false); 
         add(addProductButton);
+        
+        addProductButton.addActionListener(e -> {
+            if (presenter != null) {
+                String name = nameTextBox.getText().trim();
+                double price = Double.parseDouble(priceTextBox.getText().trim());
+                presenter.addProduct(name, price);
+            }
+        });
 
         DocumentListener fieldsListener = new DocumentListener() {
             @Override
@@ -45,6 +55,10 @@ public class InventoryView extends JFrame {
 
         nameTextBox.getDocument().addDocumentListener(fieldsListener);
         priceTextBox.getDocument().addDocumentListener(fieldsListener);
+    }
+    
+    public void setPresenter(InventoryPresenter presenter) {
+        this.presenter = presenter;
     }
 
     private void checkFields() {
