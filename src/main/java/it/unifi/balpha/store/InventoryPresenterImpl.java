@@ -14,6 +14,14 @@ public class InventoryPresenterImpl implements InventoryPresenter {
     }
     
     @Override
+    public void initialize() {
+        if (view != null) {
+            view.showCategories(inventoryService.getAllCategories());
+            view.showProducts(inventoryService.getAllProducts());
+        }
+    }
+    
+    @Override
     public void addProduct(String name, double price, Category category) {
         Product product = new Product(name, price);
         

@@ -31,6 +31,9 @@ public class InventoryService {
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
 
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);

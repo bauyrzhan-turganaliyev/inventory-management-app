@@ -132,6 +132,18 @@ public class InventoryView extends JFrame {
         this.presenter = presenter;
     }
 
+    public void showCategories(List<Category> categories) {
+        categoryComboBox.removeAllItems();
+        if (categories != null) {
+            for (Category c : categories) {
+                categoryComboBox.addItem(c);
+            }
+        }
+
+        categoryComboBox.setSelectedIndex(-1);
+        checkFields();
+    }
+    
     private void checkFields() {
         String name = nameTextBox.getText().trim();
         String priceStr = priceTextBox.getText().trim();
