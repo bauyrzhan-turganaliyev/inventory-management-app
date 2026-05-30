@@ -37,4 +37,13 @@ class InventoryViewTest {
         assertFalse(inventoryView.getAddProductButton().isEnabled(), 
             "Кнопка добавления должна быть заблокирована, если поля пусты");
     }
+    
+    @Test
+    void testWhenFieldsAreFilledAddButtonShouldBeEnabled() {
+        inventoryView.getNameTextBox().setText("Apple");
+        inventoryView.getPriceTextBox().setText("1.50");
+
+        assertTrue(inventoryView.getAddProductButton().isEnabled(),
+            "Кнопка должна быть активна, когда оба поля заполнены");
+    }
 }
