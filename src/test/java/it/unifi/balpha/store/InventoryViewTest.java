@@ -13,6 +13,9 @@ import java.lang.reflect.InvocationTargetException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class InventoryViewTest {
 
     private InventoryView inventoryView;
@@ -95,5 +98,25 @@ class InventoryViewTest {
         window.button("addProductButton").click();
 
         verify(presenter).addProduct("Mouse", 25.00, testCategory);
+    }
+    
+    @Test
+    void testProductsTableShouldBePresent() {
+        assertNotNull(window.table("productsTable").target());
+    }
+
+    @Test
+    void testShowProductsShouldPopulateTable() {
+        List<Product> products = java.util.Arrays.asList(
+            new Product("Keyboard", 50.0),
+            new Product("Mouse", 25.0)
+        );
+
+        GuiActionRunner.execute(() -> inventoryView.showProducts(products));
+
+        window.table("productsTable").requireContents(new String[][] {
+            { "Keyboard", "50.0" },
+            { "Mouse", "25.0" }
+        });
     }
 }
