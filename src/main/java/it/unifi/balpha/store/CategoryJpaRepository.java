@@ -14,7 +14,16 @@ public class CategoryJpaRepository implements CategoryRepository {
 
     @Override
     public void save(Category category) {
+        boolean isTransactionActive = em.getTransaction().isActive();
+        if (!isTransactionActive) {
+            em.getTransaction().begin();
+        }
+        
         em.persist(category);
+        
+        if (!isTransactionActive) {
+            em.getTransaction().commit();
+        }
     }
 
     @Override

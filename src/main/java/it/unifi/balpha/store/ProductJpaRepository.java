@@ -11,10 +11,6 @@ public class ProductJpaRepository implements ProductRepository {
         this.em = em;
     }
 
-    @Override
-    public void save(Product product) {
-        em.persist(product);
-    }
 
     @Override
     public Product findById(Long id) {
@@ -27,10 +23,45 @@ public class ProductJpaRepository implements ProductRepository {
     }
 
     @Override
+    public void save(Product product) {
+        boolean isTransactionActive = em.getTransaction().isActive();
+        if (!isTransactionActive) {
+            em.getTransaction().begin();
+        }
+        
+        em.persist(product);
+        
+        if (!isTransactionActive) {
+            em.getTransaction().commit();
+        }
+    }
+
+    @Override
     public void deleteById(Long id) {
-        Product product = em.find(Product.class, id);
-        if (product != null) {
-            em.remove(product);
+        if (id == null) {
+            return;
+        }
+
+        boolean isTransactionActive = em.getTransaction().isActive();
+        if (!isTransactionActive) {
+            em.getTransaction().begin();
+        }
+
+        try {
+            em.createQuery("DELETE FROM Product p WHERE p.id = :id")
+              .setParameter("id", id)
+              .executeUpdate();
+
+            em.clear(); 
+
+            if (!isTransactionActive) {
+                em.getTransaction().commit();
+            }
+        } catch (Exception e) {
+            if (!isTransactionActive && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            e.printStackTrace();
         }
     }
 }

@@ -44,6 +44,9 @@ public class InventoryView extends JFrame {
         setTitle("Inventory Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
+        
+        setSize(600, 400);
+        setLocationRelativeTo(null);
     }
 
     private void createComponents() {
@@ -162,15 +165,6 @@ public class InventoryView extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            InventoryView view = new InventoryView();
-            view.pack();
-            view.setLocationRelativeTo(null);
-            view.setVisible(true);
-        });
-    }
-    
     public JComboBox<Category> getCategoryComboBox() {
         return categoryComboBox;
     }
