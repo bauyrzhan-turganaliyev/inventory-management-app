@@ -1,5 +1,6 @@
 package it.unifi.balpha.store;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.core.Robot;
@@ -68,16 +69,25 @@ class InventoryViewTest {
     }
     
     @Test
-    void testAddButtonShouldCallPresenterToWithCorrectData() {
+    void testCategoryComboBoxShouldBePresent() {
+        assertNotNull(window.comboBox("categoryComboBox").target());
+    }
+
+    @Test
+    void testAddButtonShouldCallPresenterWithCorrectDataAndCategory() {
         InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
-        
         inventoryView.setPresenter(presenter);
 
-        inventoryView.getNameTextBox().setText("Banana");
-        inventoryView.getPriceTextBox().setText("2.30");
+        Category testCategory = new Category(1L, "Electronics");
+        inventoryView.getCategoryComboBox().addItem(testCategory);
+        
+        window.comboBox("categoryComboBox").selectItem("Electronics");
 
-        inventoryView.getAddProductButton().doClick();
+        window.textBox("nameTextBox").enterText("Mouse");
+        window.textBox("priceTextBox").enterText("25.00");
 
-        verify(presenter).addProduct("Banana", 2.30);
+        window.button("addProductButton").click();
+
+        verify(presenter).addProduct("Mouse", 25.00, testCategory);
     }
 }

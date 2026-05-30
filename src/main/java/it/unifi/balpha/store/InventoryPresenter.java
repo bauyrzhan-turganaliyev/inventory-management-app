@@ -1,5 +1,5 @@
 package it.unifi.balpha.store;
 
 public interface InventoryPresenter {
-    void addProduct(String name, double price);
+    void addProduct(String name, double price, Category category);
 }
