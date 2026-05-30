@@ -16,4 +16,13 @@ public class InventoryService {
         }
         productRepository.save(product);
     }
+    
+    public void addProductToCategory(Product product, Long categoryId) {
+        Category category = categoryRepository.findById(categoryId);
+        if (category == null) {
+            throw new IllegalArgumentException("Category with inside ID " + categoryId + " does not exist");
+        }
+        category.addProduct(product);
+        categoryRepository.save(category);
+    }
 }
