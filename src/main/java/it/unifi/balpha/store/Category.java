@@ -43,6 +43,11 @@ public class Category {
 		return products;
 	}
 	
+	@Override
+    public String toString() {
+        return this.name;
+    }
+	
 	public void addProduct(Product product) {
 		if (product == null) {
 			throw new IllegalArgumentException("Cannot add null product to category");

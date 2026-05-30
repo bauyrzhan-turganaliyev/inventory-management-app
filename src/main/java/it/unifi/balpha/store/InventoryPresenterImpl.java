@@ -9,9 +9,13 @@ public class InventoryPresenterImpl implements InventoryPresenter {
     }
 
     @Override
-    public void addProduct(String name, double price) {
+    public void addProduct(String name, double price, Category category) {
         Product product = new Product(name, price);
         
-        inventoryService.addProduct(product);
+        if (category != null && category.getId() != null) {
+            inventoryService.addProductToCategory(product, category.getId());
+        } else {
+            inventoryService.addProduct(product);
+        }
     }
 }

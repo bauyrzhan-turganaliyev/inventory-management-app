@@ -1,62 +1,67 @@
 package it.unifi.balpha.store;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
-import org.assertj.swing.core.Robot;
-import org.assertj.swing.core.BasicRobot;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import javax.swing.SwingUtilities;
+import java.lang.reflect.InvocationTargetException;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 class InventoryViewTest {
 
-    private FrameFixture window;
-    private Robot robot;
     private InventoryView inventoryView;
+    private FrameFixture window;
+    private Category defaultCategory;
 
     @BeforeEach
-    void setUp() {
-        robot = BasicRobot.robotWithNewAwtHierarchy();
+    void setUp() throws InterruptedException, InvocationTargetException {
+        GuiActionRunner.execute(() -> {
+            inventoryView = new InventoryView();
+            
+            defaultCategory = new Category("DefaultCategory");
+            inventoryView.getCategoryComboBox().addItem(defaultCategory);
+        });
         
-        inventoryView = GuiActionRunner.execute(() -> new InventoryView());
-        
-        window = new FrameFixture(robot, inventoryView);
-        window.show(); 
+        window = new FrameFixture(inventoryView);
+        window.show();
     }
 
     @AfterEach
     void tearDown() {
-        if (window != null) {
-            window.cleanUp();
-        }
+        window.cleanUp();
     }
 
     @Test
     void testWhenFormIsEmptyAddButtonShouldBeDisabled() {
-        window.textBox("nameTextBox").requireEmpty();
-        window.textBox("priceTextBox").requireEmpty();
+        window.textBox("nameTextBox").requireText("");
+        window.textBox("priceTextBox").requireText("");
         window.button("addProductButton").requireDisabled();
     }
-
+    
     @Test
     void testWhenFieldsAreFilledAddButtonShouldBeEnabled() {
         window.textBox("nameTextBox").enterText("Apple");
         window.textBox("priceTextBox").enterText("1.50");
         
+        window.comboBox("categoryComboBox").selectItem("DefaultCategory");
+
         window.button("addProductButton").requireEnabled();
     }
-    
+
     @Test
     void testWhenFieldsAreClearedAddButtonShouldBeDisabledAgain() {
         window.textBox("nameTextBox").enterText("Apple");
         window.textBox("priceTextBox").enterText("1.50");
+        window.comboBox("categoryComboBox").selectItem("DefaultCategory");
         window.button("addProductButton").requireEnabled();
 
         window.textBox("nameTextBox").deleteText();
-
         window.button("addProductButton").requireDisabled();
     }
 
@@ -64,10 +69,11 @@ class InventoryViewTest {
     void testWhenPriceIsNotANumberAddButtonShouldBeDisabled() {
         window.textBox("nameTextBox").enterText("Apple");
         window.textBox("priceTextBox").enterText("not-a-number");
+        window.comboBox("categoryComboBox").selectItem("DefaultCategory");
 
         window.button("addProductButton").requireDisabled();
     }
-    
+
     @Test
     void testCategoryComboBoxShouldBePresent() {
         assertNotNull(window.comboBox("categoryComboBox").target());
@@ -78,11 +84,11 @@ class InventoryViewTest {
         InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
         inventoryView.setPresenter(presenter);
 
-        Category testCategory = new Category(1L, "Electronics");
-        inventoryView.getCategoryComboBox().addItem(testCategory);
+        Category testCategory = new Category("Electronics");
+        
+        GuiActionRunner.execute(() -> inventoryView.getCategoryComboBox().addItem(testCategory));
         
         window.comboBox("categoryComboBox").selectItem("Electronics");
-
         window.textBox("nameTextBox").enterText("Mouse");
         window.textBox("priceTextBox").enterText("25.00");
 

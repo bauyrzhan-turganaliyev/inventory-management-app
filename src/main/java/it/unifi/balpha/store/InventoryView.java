@@ -1,6 +1,7 @@
 package it.unifi.balpha.store;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -13,6 +14,7 @@ public class InventoryView extends JFrame {
     
     private JTextField nameTextBox;
     private JTextField priceTextBox;
+    private JComboBox<Category> categoryComboBox;
     private JButton addProductButton;
     
     private InventoryPresenter presenter;
@@ -33,6 +35,10 @@ public class InventoryView extends JFrame {
         nameTextBox = new JTextField(10);
         nameTextBox.setName("nameTextBox");
         add(nameTextBox);
+        
+        categoryComboBox = new JComboBox<>();
+        categoryComboBox.setName("categoryComboBox");
+        add(categoryComboBox);
 
         priceTextBox = new JTextField(5);
         priceTextBox.setName("priceTextBox");
@@ -45,11 +51,13 @@ public class InventoryView extends JFrame {
     }
 
     private void setupListeners() {
-        addProductButton.addActionListener(e -> {
+    	addProductButton.addActionListener(e -> {
             if (presenter != null) {
                 String name = nameTextBox.getText().trim();
                 double price = Double.parseDouble(priceTextBox.getText().trim());
-                presenter.addProduct(name, price);
+                Category selectedCategory = (Category) categoryComboBox.getSelectedItem();
+                
+                presenter.addProduct(name, price, selectedCategory);
             }
         });
 
@@ -69,8 +77,10 @@ public class InventoryView extends JFrame {
     private void checkFields() {
         String name = nameTextBox.getText().trim();
         String priceStr = priceTextBox.getText().trim();
-
-        addProductButton.setEnabled(!name.isEmpty() && isValidPrice(priceStr));
+        
+        boolean hasCategory = categoryComboBox.getSelectedItem() != null;
+        
+        addProductButton.setEnabled(!name.isEmpty() && isValidPrice(priceStr) && hasCategory);
     }
 
     private boolean isValidPrice(String priceStr) {
@@ -89,6 +99,10 @@ public class InventoryView extends JFrame {
             view.setLocationRelativeTo(null);
             view.setVisible(true);
         });
+    }
+    
+    public JComboBox<Category> getCategoryComboBox() {
+        return categoryComboBox;
     }
 
     public JTextField getNameTextBox() { return nameTextBox; }
