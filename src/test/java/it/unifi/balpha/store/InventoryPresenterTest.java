@@ -61,4 +61,24 @@ class InventoryPresenterTest {
         verify(inventoryService).deleteProduct(42L);
         verify(mockView).showProducts(remainingProducts);
     }
+    
+    @Test
+    void testInitializeShouldPopulateCategoriesAndProductsOnView() {
+        InventoryView mockView = Mockito.mock(InventoryView.class);
+        presenter.setView(mockView);
+
+        java.util.List<Category> categories = java.util.Arrays.asList(new Category("Electronics"));
+        java.util.List<Product> products = java.util.Arrays.asList(new Product("Mouse", 25.0));
+
+        when(inventoryService.getAllCategories()).thenReturn(categories);
+        when(inventoryService.getAllProducts()).thenReturn(products);
+
+        presenter.initialize();
+
+
+        verify(inventoryService).getAllCategories();
+        verify(inventoryService).getAllProducts();
+        verify(mockView).showCategories(categories);
+        verify(mockView).showProducts(products);
+    }
 }
