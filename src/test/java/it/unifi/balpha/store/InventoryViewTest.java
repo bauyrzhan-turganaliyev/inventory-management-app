@@ -45,4 +45,23 @@ class InventoryViewTest {
         
         window.button("addProductButton").requireEnabled();
     }
+    
+    @Test
+    void testWhenFieldsAreClearedAddButtonShouldBeDisabledAgain() {
+        window.textBox("nameTextBox").enterText("Apple");
+        window.textBox("priceTextBox").enterText("1.50");
+        window.button("addProductButton").requireEnabled();
+
+        window.textBox("nameTextBox").deleteText();
+
+        window.button("addProductButton").requireDisabled();
+    }
+
+    @Test
+    void testWhenPriceIsNotANumberAddButtonShouldBeDisabled() {
+        window.textBox("nameTextBox").enterText("Apple");
+        window.textBox("priceTextBox").enterText("not-a-number");
+
+        window.button("addProductButton").requireDisabled();
+    }
 }
