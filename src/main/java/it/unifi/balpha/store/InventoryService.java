@@ -1,5 +1,7 @@
 package it.unifi.balpha.store;
 
+import java.util.List;
+
 public class InventoryService {
 
     private final ProductRepository productRepository;
@@ -24,5 +26,13 @@ public class InventoryService {
         }
         category.addProduct(product);
         categoryRepository.save(category);
+    }
+    
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
 }

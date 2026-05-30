@@ -1,6 +1,7 @@
 package it.unifi.balpha.store;
 
 import jakarta.persistence.EntityManager;
+import java.util.List;
 
 public class ProductJpaRepository implements ProductRepository {
 
@@ -18,5 +19,18 @@ public class ProductJpaRepository implements ProductRepository {
     @Override
     public Product findById(Long id) {
         return em.find(Product.class, id);
+    }
+    
+    @Override
+    public List<Product> findAll() {
+        return em.createQuery("FROM Product", Product.class).getResultList();
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Product product = em.find(Product.class, id);
+        if (product != null) {
+            em.remove(product);
+        }
     }
 }
