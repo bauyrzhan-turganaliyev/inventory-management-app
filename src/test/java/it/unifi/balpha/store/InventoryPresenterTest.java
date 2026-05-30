@@ -28,4 +28,20 @@ class InventoryPresenterTest {
         Product expectedProduct = new Product("Apple", 1.50);
         verify(inventoryService).addProductToCategory(Mockito.refEq(expectedProduct), Mockito.eq(1L));
     }
+    
+    @Test
+    void testAddProductShouldRefreshViewProductList() {
+        InventoryView mockView = Mockito.mock(InventoryView.class);
+        presenter.setView(mockView);
+
+        java.util.List<Product> updatedList = java.util.Arrays.asList(new Product("Apple", 1.50));
+        when(inventoryService.getAllProducts()).thenReturn(updatedList);
+
+        Category testCategory = Mockito.mock(Category.class);
+        when(testCategory.getId()).thenReturn(1L);
+        presenter.addProduct("Apple", 1.50, testCategory);
+
+        verify(inventoryService).getAllProducts();
+        verify(mockView).showProducts(updatedList);
+    }
 }
