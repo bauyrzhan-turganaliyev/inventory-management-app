@@ -24,44 +24,18 @@ public class ProductJpaRepository implements ProductRepository {
 
     @Override
     public void save(Product product) {
-        boolean isTransactionActive = em.getTransaction().isActive();
-        if (!isTransactionActive) {
-            em.getTransaction().begin();
-        }
-        
-        em.persist(product);
-        
-        if (!isTransactionActive) {
-            em.getTransaction().commit();
+        if (product.getId() == null) {
+            em.persist(product);
+        } else {
+            em.merge(product);
         }
     }
 
     @Override
     public void deleteById(Long id) {
-        if (id == null) {
-            return;
-        }
-
-        boolean isTransactionActive = em.getTransaction().isActive();
-        if (!isTransactionActive) {
-            em.getTransaction().begin();
-        }
-
-        try {
-            em.createQuery("DELETE FROM Product p WHERE p.id = :id")
-              .setParameter("id", id)
-              .executeUpdate();
-
-            em.clear(); 
-
-            if (!isTransactionActive) {
-                em.getTransaction().commit();
-            }
-        } catch (Exception e) {
-            if (!isTransactionActive && em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            e.printStackTrace();
+        Product product = em.find(Product.class, id);
+        if (product != null) {
+            em.remove(product);
         }
     }
 }
