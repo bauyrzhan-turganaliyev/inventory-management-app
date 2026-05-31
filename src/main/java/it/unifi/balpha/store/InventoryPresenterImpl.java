@@ -3,16 +3,13 @@ package it.unifi.balpha.store;
 public class InventoryPresenterImpl implements InventoryPresenter {
 
     private final InventoryService inventoryService;
-    private InventoryView view;
+    private final InventoryView view;
 
-    public InventoryPresenterImpl(InventoryService inventoryService) {
+    public InventoryPresenterImpl(InventoryView view, InventoryService inventoryService) {
+        this.view = view;
         this.inventoryService = inventoryService;
     }
 
-    public void setView(InventoryView view) {
-        this.view = view;
-    }
-    
     @Override
     public void initialize() {
         if (view != null) {
@@ -40,10 +37,11 @@ public class InventoryPresenterImpl implements InventoryPresenter {
     public void deleteProduct(Product product) {
         if (product != null && product.getId() != null) {
             inventoryService.deleteProduct(product.getId());
-            
-            view.showProducts(inventoryService.getAllProducts());
+            if (view != null) {
+                view.showProducts(inventoryService.getAllProducts());
+            }
         } else {
-            System.out.println("Ошибка: Попытка удалить продукт без ID или null!");
+            System.out.println("Error: Try to delete a product without id or null!");
         }
     }
 }
