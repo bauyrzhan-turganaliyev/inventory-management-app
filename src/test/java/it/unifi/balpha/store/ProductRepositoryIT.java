@@ -1,27 +1,40 @@
 package it.unifi.balpha.store;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.AfterAll;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ProductRepositoryIT {
-    private EntityManagerFactory emf;
+	private static EntityManagerFactory emf;
     private EntityManager em;
+    private ProductJpaRepository repository;
 
-    private ProductRepository productRepository; 
+    @BeforeAll
+    static void setupFactory() {
+        emf = Persistence.createEntityManagerFactory("inventory-pu");
+    }
+
+    @AfterAll
+    static void closeFactory() {
+        if (emf != null) {
+            emf.close();
+        }
+    }
 
     @BeforeEach
     void setUp() {
-        emf = Persistence.createEntityManagerFactory("inventory-pu");
         em = emf.createEntityManager();
-        
-        productRepository = new ProductJpaRepository(em);
+        repository = new ProductJpaRepository(em);
         
         em.getTransaction().begin();
     }
@@ -32,22 +45,34 @@ class ProductRepositoryIT {
             em.getTransaction().rollback();
         }
         em.close();
-        emf.close();
     }
 
     @Test
-    void testSaveAndFindProduct() {
-        Product product = new Product("Smartphone", 800.0);
+    void testSaveAndFindById() {
+        Product product = new Product("Integration Test Keyboard", 120.00);
         
-        productRepository.save(product);
+        repository.save(product);
         
-        em.getTransaction().commit();
+        em.flush();
         em.clear();
 
-        Product foundProduct = productRepository.findById(product.getId());
+        Product found = repository.findById(product.getId());
+        assertThat(found).isNotNull();
+        assertThat(found.getName()).isEqualTo("Integration Test Keyboard");
+        assertThat(found.getPrice()).isEqualTo(120.00);
+    }
+
+    @Test
+    void testDeleteById() {
+        Product product = new Product("To Be Deleted", 10.00);
+        repository.save(product);
         
-        assertNotNull(foundProduct);
-        assertEquals("Smartphone", foundProduct.getName());
-        assertEquals(800.0, foundProduct.getPrice());
+        em.flush();
+        em.clear();
+
+        repository.deleteById(product.getId());
+        
+        Product found = repository.findById(product.getId());
+        assertThat(found).isNull();
     }
 }
