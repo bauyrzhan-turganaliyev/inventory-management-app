@@ -110,6 +110,32 @@
 		        <mainClass>it.unifi.balpha.store.Main</mainClass>
 		    </configuration>
 		</plugin>
+		
+		<plugin>
+		    <groupId>org.pitest</groupId>
+		    <artifactId>pitest-maven</artifactId>
+		    <version>1.15.3</version>
+		    <dependencies>
+		        <dependency>
+		            <groupId>org.pitest</groupId>
+		            <artifactId>pitest-junit5-plugin</artifactId>
+		            <version>1.2.1</version>
+		        </dependency>
+		    </dependencies>
+		    <configuration>
+		        <targetClasses>
+		            <param>it.unifi.balpha.store.InventoryService</param>
+		            <param>it.unifi.balpha.store.InventoryPresenter</param>
+		        </targetClasses>
+		        <targetTests>
+		            <param>it.unifi.balpha.store.InventoryServiceTest</param>
+		            <param>it.unifi.balpha.store.InventoryPresenterTest</param>
+		        </targetTests>
+		        <excludedTestClasses>
+		            <param>it.unifi.balpha.store.InventoryViewTest</param>
+		        </excludedTestClasses>
+		    </configuration>
+		</plugin>
     </plugins>
   </build>
 </project>
