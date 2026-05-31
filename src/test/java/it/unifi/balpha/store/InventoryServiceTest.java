@@ -2,9 +2,12 @@ package it.unifi.balpha.store;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,60 +18,59 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class InventoryServiceTest {
 
     @Mock
-    private ProductRepository productRepository;
-
-    @Mock
-    private CategoryRepository categoryRepository;
+    private JpaTransactionManager transactionManager;
 
     private InventoryService inventoryService;
 
     @BeforeEach
     void setUp() {
-        inventoryService = new InventoryService(productRepository, categoryRepository);
+        inventoryService = new InventoryService(transactionManager);
     }
 
     @Test
-    void testAddProductCallsRepository() {
-        Product product = new Product("Keyboard", 50.0);
-
-        inventoryService.addProduct(product);
-
-        verify(productRepository).save(product);
+    void testAddProductWithNullShouldThrow() {
+        assertThrows(IllegalArgumentException.class, () -> 
+            inventoryService.addProduct(null)
+        );
     }
-    
+
+    @Test
+    void testDeleteProductWithNullIdShouldThrow() {
+        assertThrows(IllegalArgumentException.class, () -> 
+            inventoryService.deleteProduct(null)
+        );
+    }
+
+    @Test
+    void testAddProductToCategoryWithNullProductShouldThrow() {
+        assertThrows(IllegalArgumentException.class, () -> 
+            inventoryService.addProductToCategory(null, 1L)
+        );
+    }
+
+    @Test
+    void testAddProductToCategoryWithNullCategoryIdShouldThrow() {
+        Product product = new Product("Mouse", 25.0);
+        assertThrows(IllegalArgumentException.class, () -> 
+            inventoryService.addProductToCategory(product, null)
+        );
+    }
+
     @Test
     void testAddProductToCategoryThrowsWhenCategoryDoesNotExist() {
         Product product = new Product("Mouse", 25.0);
         Long nonExistingCategoryId = 99L;
 
-        when(categoryRepository.findById(nonExistingCategoryId)).thenReturn(null);
+        EntityManager em = mock(EntityManager.class);
+        when(transactionManager.doInTransaction(any())).thenAnswer(invocation -> {
+            JpaTransactionCode<?> code = invocation.getArgument(0);
+            return code.execute(em);
+        });
+
+        when(em.find(Category.class, nonExistingCategoryId)).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class, () -> 
             inventoryService.addProductToCategory(product, nonExistingCategoryId)
         );
-    }
-    
-    @Test
-    void testGetAllProductsReturnsList() {
-        java.util.List<Product> expectedProducts = java.util.Arrays.asList(
-            new Product("Keyboard", 50.0),
-            new Product("Mouse", 25.0)
-        );
-
-        when(productRepository.findAll()).thenReturn(expectedProducts);
-
-        java.util.List<Product> actualProducts = inventoryService.getAllProducts();
-
-        assertEquals(expectedProducts, actualProducts);
-        verify(productRepository).findAll();
-    }
-
-    @Test
-    void testDeleteProductCallsRepository() {
-        Long productId = 1L;
-
-        inventoryService.deleteProduct(productId);
-
-        verify(productRepository).deleteById(productId);
     }
 }

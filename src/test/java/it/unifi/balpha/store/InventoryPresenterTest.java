@@ -10,12 +10,14 @@ import static org.mockito.Mockito.when;
 class InventoryPresenterTest {
 
     private InventoryService inventoryService;
+    private InventoryView mockView;
     private InventoryPresenterImpl presenter;
 
     @BeforeEach
     void setUp() {
         inventoryService = Mockito.mock(InventoryService.class);
-        presenter = new InventoryPresenterImpl(inventoryService);
+        mockView = Mockito.mock(InventoryView.class);
+        presenter = new InventoryPresenterImpl(mockView, inventoryService);
     }
 
     @Test
@@ -31,14 +33,12 @@ class InventoryPresenterTest {
     
     @Test
     void testAddProductShouldRefreshViewProductList() {
-        InventoryView mockView = Mockito.mock(InventoryView.class);
-        presenter.setView(mockView);
-
         java.util.List<Product> updatedList = java.util.Arrays.asList(new Product("Apple", 1.50));
         when(inventoryService.getAllProducts()).thenReturn(updatedList);
 
         Category testCategory = Mockito.mock(Category.class);
         when(testCategory.getId()).thenReturn(1L);
+        
         presenter.addProduct("Apple", 1.50, testCategory);
 
         verify(inventoryService).getAllProducts();
@@ -47,13 +47,10 @@ class InventoryPresenterTest {
     
     @Test
     void testDeleteProductShouldCallServiceAndRefreshView() {
-        InventoryView mockView = Mockito.mock(InventoryView.class);
-        presenter.setView(mockView);
-
         Product productToDelete = Mockito.mock(Product.class);
         when(productToDelete.getId()).thenReturn(42L);
 
-        java.util.List<Product> remainingProducts = java.util.Arrays.asList(new Product[] {}); 
+        java.util.List<Product> remainingProducts = java.util.Arrays.asList(); 
         when(inventoryService.getAllProducts()).thenReturn(remainingProducts);
 
         presenter.deleteProduct(productToDelete);
@@ -64,9 +61,6 @@ class InventoryPresenterTest {
     
     @Test
     void testInitializeShouldPopulateCategoriesAndProductsOnView() {
-        InventoryView mockView = Mockito.mock(InventoryView.class);
-        presenter.setView(mockView);
-
         java.util.List<Category> categories = java.util.Arrays.asList(new Category("Electronics"));
         java.util.List<Product> products = java.util.Arrays.asList(new Product("Mouse", 25.0));
 
@@ -74,7 +68,6 @@ class InventoryPresenterTest {
         when(inventoryService.getAllProducts()).thenReturn(products);
 
         presenter.initialize();
-
 
         verify(inventoryService).getAllCategories();
         verify(inventoryService).getAllProducts();
