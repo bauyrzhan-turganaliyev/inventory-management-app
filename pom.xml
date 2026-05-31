@@ -39,12 +39,6 @@
         <artifactId>hibernate-core</artifactId>
         <version>6.4.4.Final</version>
     </dependency>
-
-    <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>42.7.2</version>
-    </dependency>
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
@@ -64,6 +58,12 @@
         <version>3.17.1</version>
         <scope>test</scope>
     </dependency>
+    
+    <dependency>
+	    <groupId>org.postgresql</groupId>
+	    <artifactId>postgresql</artifactId>
+	    <version>42.7.3</version>
+	</dependency>
   </dependencies>
 
   <build>
@@ -101,6 +101,15 @@
                 </execution>
             </executions>
         </plugin>
+        
+        <plugin>
+		    <groupId>org.codehaus.mojo</groupId>
+		    <artifactId>exec-maven-plugin</artifactId>
+		    <version>3.6.3</version>
+		    <configuration>
+		        <mainClass>it.unifi.balpha.store.Main</mainClass>
+		    </configuration>
+		</plugin>
     </plugins>
   </build>
 </project>
