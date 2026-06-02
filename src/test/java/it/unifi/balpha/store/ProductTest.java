@@ -12,6 +12,9 @@ class ProductTest {
         
         assertEquals("Laptop", product.getName());
         assertEquals(1200.50, product.getPrice());
+        
+        assertEquals(null, product.getId()); 
+        assertEquals(null, product.getCategory());
     }
     
     @Test
@@ -26,5 +29,20 @@ class ProductTest {
     	IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Product("Laptop", -10.0));
     
     	assertEquals("Product price cannot be negative", exception.getMessage());
+    }
+    
+    @Test
+    void testProductPriceIsZeroIsAllowed() {
+        Product product = new Product("Freebie", 0.0);
+        assertEquals(0.0, product.getPrice());
+    }
+    
+    @Test
+    void testSetAndGetCategory() {
+        Product product = new Product("Laptop", 1200.50);
+        Category category = new Category("Electronics");
+        
+        product.setCategory(category);
+        assertEquals(category, product.getCategory());
     }
 }

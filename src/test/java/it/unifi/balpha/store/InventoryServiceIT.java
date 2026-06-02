@@ -55,7 +55,6 @@ class InventoryServiceIT {
         transactionManager = new JpaTransactionManager(emf);
         inventoryService = new InventoryService(transactionManager);
         
-        // Очистка БД через транзакционный менеджер
         transactionManager.doInTransaction(em -> {
             em.createQuery("DELETE FROM Product").executeUpdate();
             em.createQuery("DELETE FROM Category").executeUpdate();
@@ -73,7 +72,6 @@ class InventoryServiceIT {
         Product product = new Product("Keyboard", 45.0);
         inventoryService.addProduct(product);
 
-        // Используем сервис для проверки, а не прямую БД!
         List<Product> products = inventoryService.getAllProducts();
         assertThat(products).hasSize(1);
         assertThat(products.get(0).getName()).isEqualTo("Keyboard");
@@ -105,7 +103,6 @@ class InventoryServiceIT {
 
     @Test
     void testAddProductToCategorySuccessfully() {
-        // Подготовка данных
         Product product = new Product("Smartphone", 800.0);
         Category category = new Category("Gadgets");
         transactionManager.doInTransaction(em -> {
@@ -114,10 +111,8 @@ class InventoryServiceIT {
             return null;
         });
         
-        // Действие через сервис
         inventoryService.addProductToCategory(product, category.getId());
         
-        // Проверка через сервис (получаем продукт через сервис)
         Product updatedProduct = inventoryService.getProductById(product.getId());
         
         assertThat(updatedProduct.getCategory()).isNotNull();
@@ -139,16 +134,13 @@ class InventoryServiceIT {
     
     @Test
     void testGetAllCategoriesSuccessfully() {
-        // Подготовка данных
         transactionManager.doInTransaction(em -> {
             em.persist(new Category("Electronics"));
             return null;
         });
 
-        // ВЫЗОВ метода, который раньше имел NO_COVERAGE
         List<Category> result = inventoryService.getAllCategories();
         
-        // ПРОВЕРКА
         assertThat(result).extracting(Category::getName).containsExactly("Electronics");
     }
 }

@@ -35,18 +35,15 @@ class ProductRepositoryIT {
     void testSaveProduct() {
         Product product = new Product("New Product", 10.0);
 
-        // 1. Сохраняем через репозиторий
         transactionManager.doInTransaction(em -> {
             new ProductJpaRepository(em).save(product);
             return null;
         });
 
-        // 2. ВАЖНО: мы создаем НОВЫЙ em, чтобы точно не было кэша первого уровня
         Product found = transactionManager.doInTransaction(em -> 
             em.find(Product.class, product.getId())
         );
 
-        // 3. Если PITest удалит вызов save(), found будет NULL, и тест упадет!
         assertThat(found).isNotNull();
         assertThat(found.getName()).isEqualTo("New Product");
     }
