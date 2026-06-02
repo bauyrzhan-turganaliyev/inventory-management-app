@@ -3,14 +3,14 @@ package it.unifi.balpha.store;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
-public class JpaTransactionManager {
+public class JpaTransactionManager implements TransactionManager {
     private final EntityManagerFactory emf;
 
     public JpaTransactionManager(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
-    public <T> T doInTransaction(JpaTransactionCode<T> code) {
+    public <T> T doInTransaction(TransactionWork<T> code) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();

@@ -8,7 +8,47 @@
   <artifactId>inventory-management-app</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>inventory-management-app</name>
-
+	<profiles>
+	    <profile>
+	        <id>docker-env</id>
+	        <properties>
+	            <env.TESTCONTAINERS_RYUK_DISABLED>true</env.TESTCONTAINERS_RYUK_DISABLED>
+	        </properties>
+	    </profile>
+	    <profile>
+	        <id>mutation-testing</id>
+	        <build>
+	            <plugins>
+	                <plugin>
+	                    <groupId>org.pitest</groupId>
+	                    <artifactId>pitest-maven</artifactId>
+	                    <version>1.15.3</version>
+	                    <configuration>
+	                        <targetClasses>
+	                            <param>it.unifi.balpha.store.*</param>
+	                        </targetClasses>
+	                        <targetTests>
+	                            <param>it.unifi.balpha.store.CategoryTest</param>
+	                            <param>it.unifi.balpha.store.ProductTest</param>
+	                            <param>it.unifi.balpha.store.InventoryPresenterTest</param>
+	                            <param>it.unifi.balpha.store.InventoryServiceTest</param>
+	                        </targetTests>
+	                        <jvmArgs>
+	                            <jvmArg>-Djava.awt.headless=true</jvmArg>
+	                        </jvmArgs>
+	                    </configuration>
+	                    <dependencies>
+	                        <dependency>
+	                            <groupId>org.pitest</groupId>
+	                            <artifactId>pitest-junit5-plugin</artifactId>
+	                            <version>1.2.1</version>
+	                        </dependency>
+	                    </dependencies>
+	                </plugin>
+	            </plugins>
+	        </build>
+	    </profile>
+	</profiles>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>11</maven.compiler.release>
@@ -64,6 +104,25 @@
 	    <artifactId>postgresql</artifactId>
 	    <version>42.7.3</version>
 	</dependency>
+	<dependency>
+	    <groupId>org.testcontainers</groupId>
+	    <artifactId>testcontainers</artifactId>
+	    <version>1.19.3</version>
+	    <scope>test</scope>
+	</dependency>
+	<dependency>
+	    <groupId>org.testcontainers</groupId>
+	    <artifactId>junit-jupiter</artifactId>
+	    <version>1.19.3</version>
+	    <scope>test</scope>
+	</dependency>
+	<dependency>
+	    <groupId>org.testcontainers</groupId>
+	    <artifactId>postgresql</artifactId>
+	    <version>1.19.3</version>
+	    <scope>test</scope>
+	</dependency>
+	
   </dependencies>
 
   <build>
@@ -75,15 +134,27 @@
         </plugin>
         
         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.2.2</version>
-        </plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-surefire-plugin</artifactId>
+		    <version>3.2.2</version>
+		    <configuration>
+		        <environmentVariables>
+		            <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
+		            <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+		        </environmentVariables>
+		    </configuration>
+		</plugin>
 
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <version>3.2.5</version>
+            <configuration>
+		        <environmentVariables>
+		            <DOCKER_HOST>unix:///var/run/docker.sock</DOCKER_HOST>
+		            <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+		        </environmentVariables>
+		    </configuration>
             <executions>
                 <execution>
                     <id>integration-tests</id>
@@ -110,31 +181,24 @@
 		        <mainClass>it.unifi.balpha.store.Main</mainClass>
 		    </configuration>
 		</plugin>
-		
 		<plugin>
-		    <groupId>org.pitest</groupId>
-		    <artifactId>pitest-maven</artifactId>
-		    <version>1.15.3</version>
-		    <dependencies>
-		        <dependency>
-		            <groupId>org.pitest</groupId>
-		            <artifactId>pitest-junit5-plugin</artifactId>
-		            <version>1.2.1</version>
-		        </dependency>
-		    </dependencies>
-		    <configuration>
-		        <targetClasses>
-		            <param>it.unifi.balpha.store.InventoryService</param>
-		            <param>it.unifi.balpha.store.InventoryPresenter</param>
-		        </targetClasses>
-		        <targetTests>
-		            <param>it.unifi.balpha.store.InventoryServiceTest</param>
-		            <param>it.unifi.balpha.store.InventoryPresenterTest</param>
-		        </targetTests>
-		        <excludedTestClasses>
-		            <param>it.unifi.balpha.store.InventoryViewTest</param>
-		        </excludedTestClasses>
-		    </configuration>
+		    <groupId>org.jacoco</groupId>
+		    <artifactId>jacoco-maven-plugin</artifactId>
+		    <version>0.8.11</version>
+		    <executions>
+		        <execution>
+		            <goals>
+		                <goal>prepare-agent</goal>
+		            </goals>
+		        </execution>
+		        <execution>
+		            <id>report</id>
+		            <phase>verify</phase>
+		            <goals>
+		                <goal>report</goal>
+		            </goals>
+		        </execution>
+		    </executions>
 		</plugin>
     </plugins>
   </build>

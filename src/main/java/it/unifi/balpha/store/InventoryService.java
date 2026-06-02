@@ -9,6 +9,12 @@ public class InventoryService {
         this.transactionManager = transactionManager;
     }
 
+    public Product getProductById(Long id) {
+        return transactionManager.doInTransaction(em -> {
+            return new ProductJpaRepository(em).findById(id);
+        });
+    }
+    
     public List<Product> getAllProducts() {
         return transactionManager.doInTransaction(em -> {
             ProductJpaRepository productRepo = new ProductJpaRepository(em);

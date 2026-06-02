@@ -1,6 +1,7 @@
 package it.unifi.balpha.store;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -20,5 +21,15 @@ class CategoryTest {
         List<Product> products = category.getProducts();
         assertEquals(1, products.size());
         assertEquals("Laptop", products.get(0).getName());
+    }
+    
+    @Test
+    void testConstructorWhenNameIsNullShouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> new Category(null));
+    }
+
+    @Test
+    void testConstructorWhenNameIsEmptyShouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> new Category("   "));
     }
 }
