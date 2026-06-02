@@ -21,6 +21,9 @@ class CategoryTest {
         List<Product> products = category.getProducts();
         assertEquals(1, products.size());
         assertEquals("Laptop", products.get(0).getName());
+        
+        assertEquals(null, category.getId());
+        assertEquals("Electronics", category.toString());
     }
     
     @Test
