@@ -2,15 +2,19 @@ package it.unifi.balpha.store;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class InventoryPresenterTest {
-
-    private InventoryService inventoryService;
-    private InventoryView mockView;
+    @Mock private InventoryService inventoryService;
+    @Mock private InventoryView mockView;
     private InventoryPresenterImpl presenter;
 
     @BeforeEach
@@ -73,5 +77,22 @@ class InventoryPresenterTest {
         verify(inventoryService).getAllProducts();
         verify(mockView).showCategories(categories);
         verify(mockView).showProducts(products);
+    }
+    
+    @Test
+    void testAddProductWithoutCategory() {
+        presenter.addProduct("Laptop", 1000.0, null);
+        
+        verify(inventoryService).addProduct(any(Product.class));
+        verify(mockView).showProducts(anyList());
+    }
+    
+    @Test
+    void testDeleteProductNullThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            presenter.deleteProduct(null);
+        });
+        
+        verifyNoInteractions(inventoryService);
     }
 }

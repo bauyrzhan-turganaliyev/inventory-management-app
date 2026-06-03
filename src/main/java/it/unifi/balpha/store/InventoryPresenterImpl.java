@@ -41,7 +41,7 @@ public class InventoryPresenterImpl implements InventoryPresenter {
                 view.showProducts(inventoryService.getAllProducts());
             }
         } else {
-            System.out.println("Error: Try to delete a product without id or null!");
+            throw new IllegalArgumentException("Error: Try to delete a product without id or null!");
         }
     }
 }
