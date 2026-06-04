@@ -2,28 +2,50 @@ package it.unifi.balpha.store;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.List;
+
+@ExtendWith(MockitoExtension.class)
 class InventoryPresenterTest {
     @Mock private InventoryService inventoryService;
     @Mock private InventoryView mockView;
-    private InventoryPresenterImpl presenter;
+    @InjectMocks private InventoryPresenterImpl presenter;
 
-    @BeforeEach
-    void setUp() {
-        inventoryService = Mockito.mock(InventoryService.class);
-        mockView = Mockito.mock(InventoryView.class);
-        presenter = new InventoryPresenterImpl(mockView, inventoryService);
+    @Test
+    void testInitializeWithNullView() {
+        InventoryPresenterImpl presenterNullView = new InventoryPresenterImpl(null, inventoryService);
+        presenterNullView.initialize();
+        verifyNoInteractions(inventoryService);
     }
 
+    @Test
+    void testInitializeFull() {
+        List<Category> cats = Collections.emptyList();
+        List<Product> prods = Collections.emptyList();
+        when(inventoryService.getAllCategories()).thenReturn(cats);
+        when(inventoryService.getAllProducts()).thenReturn(prods);
+
+        presenter.initialize();
+
+        verify(mockView).showCategories(cats);
+        verify(mockView).showProducts(prods);
+    }
+    
     @Test
     void testAddProductShouldCallServiceToSaveWithCategory() {
         Category testCategory = Mockito.mock(Category.class);
@@ -94,5 +116,55 @@ class InventoryPresenterTest {
         });
         
         verifyNoInteractions(inventoryService);
+    }
+    
+    @Test
+    void testInitializeWithNullViewDoesNotCrash() {
+        InventoryPresenterImpl presenterNullView = new InventoryPresenterImpl(null, inventoryService);
+        presenterNullView.initialize();
+        verifyNoInteractions(inventoryService);
+    }
+    
+    @Test
+    void testAddProductWithFullCategoryInfo() {
+        Category cat = mock(Category.class);
+        when(cat.getId()).thenReturn(1L);
+        presenter.addProduct("Name", 10.0, cat);
+        verify(inventoryService).addProductToCategory(any(Product.class), eq(1L));
+    }
+
+    @Test
+    void testAddProductWithCategoryButNullId() {
+        Category cat = mock(Category.class);
+        when(cat.getId()).thenReturn(null);
+        presenter.addProduct("Name", 10.0, cat);
+        verify(inventoryService).addProduct(any(Product.class));
+    }
+
+    @Test
+    void testAddProductWithNullCategory() {
+        presenter.addProduct("Name", 10.0, null);
+        verify(inventoryService).addProduct(any(Product.class));
+    }
+
+    @Test
+    void testDeleteProductValid() {
+        Product p = mock(Product.class);
+        when(p.getId()).thenReturn(1L);
+        presenter.deleteProduct(p);
+        verify(inventoryService).deleteProduct(1L);
+        verify(mockView).showProducts(any());
+    }
+
+    @Test
+    void testDeleteProductNullIdThrowsException() {
+        Product p = mock(Product.class);
+        when(p.getId()).thenReturn(null);
+        assertThrows(IllegalArgumentException.class, () -> presenter.deleteProduct(p));
+    }
+
+    @Test
+    void testDeleteProductNullObjectThrowsException() {
+        assertThrows(IllegalArgumentException.class, () -> presenter.deleteProduct(null));
     }
 }

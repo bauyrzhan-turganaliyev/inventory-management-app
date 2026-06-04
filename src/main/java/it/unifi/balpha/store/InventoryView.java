@@ -168,6 +168,10 @@ public class InventoryView extends JFrame {
     public JComboBox<Category> getCategoryComboBox() {
         return categoryComboBox;
     }
+    
+    public boolean isProductTableEditable(int row, int col) {
+        return productsTable.isCellEditable(row, col);
+    }
 
     public JTextField getNameTextBox() { return nameTextBox; }
     public JTextField getPriceTextBox() { return priceTextBox; }

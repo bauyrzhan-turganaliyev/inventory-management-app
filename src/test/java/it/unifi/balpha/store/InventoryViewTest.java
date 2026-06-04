@@ -146,4 +146,24 @@ class InventoryViewTest {
 
         verify(presenter).deleteProduct(productToDelete);
     }
+    
+    @Test
+    void testTableCellsAreNotEditable() {
+        assertFalse(inventoryView.isProductTableEditable(0, 0), 
+            "Table cells should not be editable");
+    }
+    
+    @Test
+    void testFieldsListenerTriggersCheckFieldsOnAllEvents() {
+        window.textBox("nameTextBox").enterText("A");
+        window.button("addProductButton").requireDisabled();
+
+        window.textBox("nameTextBox").deleteText();
+        window.button("addProductButton").requireDisabled();
+
+        window.textBox("nameTextBox").enterText("B");
+        window.textBox("nameTextBox").deleteText();
+        window.textBox("nameTextBox").enterText("C");
+        window.button("addProductButton").requireDisabled();
+    }
 }
