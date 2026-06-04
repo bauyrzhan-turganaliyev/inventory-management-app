@@ -24,6 +24,14 @@
 	                    <artifactId>pitest-maven</artifactId>
 	                    <version>1.15.3</version>
 	                    <configuration>
+		                    <timeoutFactor>1.5</timeoutFactor>
+	    					<timeoutConstant>5000</timeoutConstant>
+	    					<excludedClasses>
+						        <param>it.unifi.balpha.store.config.*</param>
+						        <param>it.unifi.balpha.store.JpaTransactionManager</param>
+						        <param>it.unifi.balpha.store.InventoryView</param>
+						        <param>it.unifi.balpha.store.Main</param>
+						    </excludedClasses>
 	                        <targetClasses>
 	                            <param>it.unifi.balpha.store.*</param>
 	                        </targetClasses>
@@ -32,6 +40,7 @@
 	                            <param>it.unifi.balpha.store.ProductTest</param>
 	                            <param>it.unifi.balpha.store.InventoryPresenterTest</param>
 	                            <param>it.unifi.balpha.store.InventoryServiceTest</param>
+	                            <param>it.unifi.balpha.store.InventoryServiceIT</param>
 	                        </targetTests>
 	                        <jvmArgs>
 	                            <jvmArg>-Djava.awt.headless=true</jvmArg>

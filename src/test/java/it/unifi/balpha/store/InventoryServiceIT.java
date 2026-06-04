@@ -98,7 +98,8 @@ class InventoryServiceIT {
 
         inventoryService.deleteProduct(product.getId());
 
-        assertThat(inventoryService.getAllProducts()).isEmpty();
+        Product deletedProduct = inventoryService.getProductById(product.getId());
+        assertThat(deletedProduct).isNull();
     }
 
     @Test
@@ -113,10 +114,11 @@ class InventoryServiceIT {
         
         inventoryService.addProductToCategory(product, category.getId());
         
-        Product updatedProduct = inventoryService.getProductById(product.getId());
+        em.clear(); 
+        Product updated = inventoryService.getProductById(product.getId());
         
-        assertThat(updatedProduct.getCategory()).isNotNull();
-        assertThat(updatedProduct.getCategory().getName()).isEqualTo("Gadgets");
+        assertThat(updated.getCategory()).isNotNull();
+        assertThat(updated.getCategory().getName()).isEqualTo("Gadgets");
     }
 
     @Test
@@ -142,5 +144,19 @@ class InventoryServiceIT {
         List<Category> result = inventoryService.getAllCategories();
         
         assertThat(result).extracting(Category::getName).containsExactly("Electronics");
+    }
+    
+    @Test
+    void testGetProductByIdSuccessfully() {
+        Product product = new Product("Smartphone", 800.0);
+        transactionManager.doInTransaction(em -> {
+            em.persist(product);
+            return null;
+        });
+        
+        Product found = inventoryService.getProductById(product.getId());
+        
+        assertThat(found).isNotNull();
+        assertThat(found.getName()).isEqualTo("Smartphone");
     }
 }
