@@ -1,16 +1,15 @@
 package it.unifi.balpha.store;
 
+import java.awt.EventQueue;
+
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import java.awt.EventQueue;
 
 public class Main {
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("inventory-pu");
         
         JpaTransactionManager transactionManager = new JpaTransactionManager(emf);
-
-        InventoryService inventoryService = new InventoryService(transactionManager);
 
         try {
             transactionManager.doInTransaction(em -> {
@@ -25,10 +24,8 @@ public class Main {
                 Product sampleProduct = new Product("Mechanical Keyboard", 89.99);
                 productRepository.save(sampleProduct);
 
-                if (electronics.getId() != null) {
-                    sampleProduct.setCategory(electronics);
-                    productRepository.save(sampleProduct);
-                }
+                sampleProduct.setCategory(electronics);
+                productRepository.save(sampleProduct);
                 
                 return null;
             });
@@ -39,11 +36,16 @@ public class Main {
 
         EventQueue.invokeLater(() -> {
             try {
+                InventoryService inventoryService = new InventoryService(
+                    transactionManager, 
+                    null,
+                    null
+                );
+
                 InventoryView view = new InventoryView();
                 InventoryPresenterImpl presenter = new InventoryPresenterImpl(view, inventoryService);
 
                 view.setPresenter(presenter);
-                
                 presenter.initialize();
                 view.setVisible(true);
 
@@ -55,7 +57,6 @@ public class Main {
                         }
                     }
                 });
-
             } catch (Exception e) {
                 System.err.println("Error in start Java Swing");
                 e.printStackTrace();

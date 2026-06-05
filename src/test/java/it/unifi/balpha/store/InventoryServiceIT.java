@@ -53,7 +53,11 @@ class InventoryServiceIT {
     void setUp() {
         em = emf.createEntityManager();
         transactionManager = new JpaTransactionManager(emf);
-        inventoryService = new InventoryService(transactionManager);
+        
+        ProductJpaRepository productRepo = new ProductJpaRepository(em);
+        CategoryJpaRepository categoryRepo = new CategoryJpaRepository(em);
+        
+        inventoryService = new InventoryService(transactionManager, productRepo, categoryRepo);
         
         transactionManager.doInTransaction(em -> {
             em.createQuery("DELETE FROM Product").executeUpdate();
