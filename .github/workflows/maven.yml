@@ -44,4 +44,4 @@ jobs:
         echo "DISPLAY=:99" >> $GITHUB_ENV
 
     - name: Build and Verify with Maven
-      run: mvn clean verify
+      run: xvfb-run -a mvn clean verify
