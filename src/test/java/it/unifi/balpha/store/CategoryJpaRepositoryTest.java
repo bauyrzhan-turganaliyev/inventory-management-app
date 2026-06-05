@@ -1,7 +1,13 @@
 package it.unifi.balpha.store;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
+
+import java.util.List;
+
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,5 +42,31 @@ class CategoryJpaRepositoryTest {
         
         verify(em).merge(category);
         verify(em, never()).persist(any());
+    }
+    
+    @Test
+    void testFindById() {
+        Long id = 1L;
+        Category expectedCategory = new Category("Electronics");
+        
+        when(em.find(Category.class, id)).thenReturn(expectedCategory);
+        
+        Category actualCategory = repository.findById(id);
+        
+        assertEquals(expectedCategory, actualCategory);
+    }
+    
+    @Test
+    void testFindAll() {
+        List<Category> expectedList = List.of(new Category("Books"), new Category("Electronics"));
+        TypedQuery<Category> mockQuery = mock(TypedQuery.class);
+        
+        when(em.createQuery("FROM Category", Category.class)).thenReturn(mockQuery);
+        when(mockQuery.getResultList()).thenReturn(expectedList);
+        
+        List<Category> actualList = repository.findAll();
+        
+        assertEquals(expectedList, actualList);
+        assertEquals(2, actualList.size());
     }
 }
