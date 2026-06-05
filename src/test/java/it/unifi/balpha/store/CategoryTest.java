@@ -35,4 +35,11 @@ class CategoryTest {
     void testConstructorWhenNameIsEmptyShouldThrowException() {
         assertThrows(IllegalArgumentException.class, () -> new Category("   "));
     }
+    
+    @Test
+    void testAddNullProduct() {
+    	Category category = new Category();
+    	
+    	assertThrows(IllegalArgumentException.class, () -> category.addProduct(null));
+    }
 }
