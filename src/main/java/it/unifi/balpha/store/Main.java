@@ -22,10 +22,10 @@ public class Main {
                 categoryRepository.save(food);
 
                 Product sampleProduct = new Product("Mechanical Keyboard", 89.99);
-                productRepository.save(em, sampleProduct);
+                productRepository.save(sampleProduct);
 
                 sampleProduct.setCategory(electronics);
-                productRepository.save(em, sampleProduct);
+                productRepository.save(sampleProduct);
                 
                 return null;
             });
@@ -37,9 +37,7 @@ public class Main {
         EventQueue.invokeLater(() -> {
             try {
                 InventoryService inventoryService = new InventoryService(
-                    transactionManager, 
-                    null,
-                    null
+                    transactionManager
                 );
 
                 InventoryView view = new InventoryView();

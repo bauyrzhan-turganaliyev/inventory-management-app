@@ -4,59 +4,53 @@ import java.util.List;
 
 public class InventoryService {
     private final JpaTransactionManager transactionManager;
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
 
-    public InventoryService(JpaTransactionManager transactionManager, 
-                            ProductRepository productRepository, 
-                            CategoryRepository categoryRepository) {
+    public InventoryService(JpaTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
     }
 
     public Product getProductById(Long id) {
-        return transactionManager.doInTransaction(em -> productRepository.findById(id));
+        return transactionManager.doInTransaction(em ->
+            new ProductJpaRepository(em).findById(id)
+        );
     }
-    
+
     public List<Product> getAllProducts() {
-        return transactionManager.doInTransaction(em -> productRepository.findAll());
+        return transactionManager.doInTransaction(em ->
+            new ProductJpaRepository(em).findAll()
+        );
     }
 
     public List<Category> getAllCategories() {
-        return transactionManager.doInTransaction(em -> categoryRepository.findAll());
+        return transactionManager.doInTransaction(em ->
+            new CategoryJpaRepository(em).findAll()
+        );
     }
 
     public Product addProduct(Product product) {
         if (product == null) throw new IllegalArgumentException("Product cannot be null");
+        return transactionManager.doInTransaction(em ->
+            new ProductJpaRepository(em).save(product)
+        );
+    }
 
-        return transactionManager.doInTransaction(em -> {
-            return productRepository.save(em, product);
+    public void deleteProduct(Long id) {
+        if (id == null) throw new IllegalArgumentException("Product ID cannot be null");
+        transactionManager.doInTransaction(em -> {
+            new ProductJpaRepository(em).deleteById(id);
+            return null;
         });
     }
 
     public void addProductToCategory(Product product, Long categoryId) {
         if (product == null) throw new IllegalArgumentException("Product cannot be null");
         if (categoryId == null) throw new IllegalArgumentException("Category ID cannot be null");
-
         transactionManager.doInTransaction(em -> {
-            Category category = categoryRepository.findById(categoryId);
-            if (category != null) {
-                product.setCategory(category);
-                productRepository.save(em, product);
-            } else {
+            Category category = new CategoryJpaRepository(em).findById(categoryId);
+            if (category == null)
                 throw new IllegalArgumentException("Category with ID " + categoryId + " not found");
-            }
-            return null;
-        });
-    }
-
-    public void deleteProduct(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Product ID cannot be null");
-        }
-        transactionManager.doInTransaction(em -> {
-            productRepository.deleteById(id);
+            product.setCategory(category);
+            new ProductJpaRepository(em).save(product);
             return null;
         });
     }

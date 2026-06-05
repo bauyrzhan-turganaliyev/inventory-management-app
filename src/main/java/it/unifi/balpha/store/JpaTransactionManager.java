@@ -10,6 +10,7 @@ public class JpaTransactionManager implements TransactionManager {
         this.emf = emf;
     }
 
+    @Override
     public <T> T doInTransaction(TransactionWork<T> code) {
         EntityManager em = emf.createEntityManager();
         try {

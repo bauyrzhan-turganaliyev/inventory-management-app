@@ -21,7 +21,7 @@ public class ProductJpaRepository implements ProductRepository {
     }
 
     @Override
-    public Product save(EntityManager em, Product product) {
+    public Product save(Product product) {
         if (product.getId() == null) {
             em.persist(product);
             em.flush();
