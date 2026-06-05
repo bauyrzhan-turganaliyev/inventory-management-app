@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 class ProductRepositoryIT {
     private static EntityManagerFactory emf;
     private TransactionManager transactionManager;
-    private ProductJpaRepository repository;
 
     @BeforeAll
     static void setupFactory() {
@@ -27,7 +26,6 @@ class ProductRepositoryIT {
     @BeforeEach
     void setUp() {
         transactionManager = new JpaTransactionManager(emf);
-        repository = new ProductJpaRepository(null); 
     }
 
     
@@ -35,7 +33,7 @@ class ProductRepositoryIT {
     void testSaveProduct() {
         Product product = new Product("New Product", 10.0);
         transactionManager.doInTransaction(em -> {
-            new ProductJpaRepository(em).save(em, product);
+            new ProductJpaRepository(em).save(product);
             return null;
         });
         Product found = transactionManager.doInTransaction(em ->
@@ -49,7 +47,7 @@ class ProductRepositoryIT {
     void testDeleteById() {
         Product product = new Product("To Be Deleted", 10.00);
         transactionManager.doInTransaction(em -> {
-            new ProductJpaRepository(em).save(em, product);
+            new ProductJpaRepository(em).save(product);
             return null;
         });
         transactionManager.doInTransaction(em -> {

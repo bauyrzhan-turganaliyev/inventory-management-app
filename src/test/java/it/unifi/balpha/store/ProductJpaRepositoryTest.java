@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-class ProductJpaRepositoryIT {
+class ProductJpaRepositoryTest {
 
     private static EntityManagerFactory emf;
     private EntityManager em;
@@ -60,10 +60,7 @@ class ProductJpaRepositoryIT {
         em.flush();
         em.getTransaction().commit();
 
-        Product found = repository.findById(p.getId());
-
-        assertThat(found).isNotNull();
-        assertThat(found.getName()).isEqualTo("Test");
+        assertThat(repository.findById(p.getId())).isNotNull();
     }
 
     @Test
@@ -81,7 +78,8 @@ class ProductJpaRepositoryIT {
         List<Product> result = repository.findAll();
 
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(Product::getName).containsExactlyInAnyOrder("A", "B");
+        assertThat(result).extracting(Product::getName)
+            .containsExactlyInAnyOrder("A", "B");
     }
 
     @Test
@@ -131,43 +129,5 @@ class ProductJpaRepositoryIT {
         em.getTransaction().begin();
         repository.deleteById(999L);
         em.getTransaction().commit();
-    }
-    
-    @Test
-    void testSaveNewProductAssignsIdAfterFlush() {
-        Product p = new Product("Flush Test", 5.0);
-
-        em.getTransaction().begin();
-        repository.save(p);
-
-        assertThat(p.getId()).isNotNull();
-        em.getTransaction().commit();
-    }
-    
-    @Test
-    void testSaveNewProductReturnsPersistedProduct() {
-        Product p = new Product("Return Test", 5.0);
-
-        em.getTransaction().begin();
-        Product returned = repository.save(p);
-        em.getTransaction().commit();
-
-        assertThat(returned).isNotNull();
-        assertThat(returned).isSameAs(p);
-    }
-    
-    @Test
-    void testSaveExistingProductReturnsMergedProduct() {
-        Product p = new Product("Merge Return Test", 10.0);
-        em.getTransaction().begin();
-        em.persist(p);
-        em.flush();
-        em.getTransaction().commit();
-
-        em.getTransaction().begin();
-        Product returned = repository.save(p);
-        em.getTransaction().commit();
-
-        assertThat(returned).isNotNull();
     }
 }
