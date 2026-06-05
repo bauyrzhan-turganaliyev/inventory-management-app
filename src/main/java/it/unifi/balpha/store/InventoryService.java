@@ -27,12 +27,26 @@ public class InventoryService {
         return transactionManager.doInTransaction(em -> categoryRepository.findAll());
     }
 
-    public void addProduct(Product product) {
-        if (product == null) {
-            throw new IllegalArgumentException("Product cannot be null");
-        }
+    public Product addProduct(Product product) {
+        if (product == null) throw new IllegalArgumentException("Product cannot be null");
+
+        return transactionManager.doInTransaction(em -> {
+            return productRepository.save(em, product);
+        });
+    }
+
+    public void addProductToCategory(Product product, Long categoryId) {
+        if (product == null) throw new IllegalArgumentException("Product cannot be null");
+        if (categoryId == null) throw new IllegalArgumentException("Category ID cannot be null");
+
         transactionManager.doInTransaction(em -> {
-            productRepository.save(product);
+            Category category = categoryRepository.findById(categoryId);
+            if (category != null) {
+                product.setCategory(category);
+                productRepository.save(em, product);
+            } else {
+                throw new IllegalArgumentException("Category with ID " + categoryId + " not found");
+            }
             return null;
         });
     }
@@ -43,26 +57,6 @@ public class InventoryService {
         }
         transactionManager.doInTransaction(em -> {
             productRepository.deleteById(id);
-            return null;
-        });
-    }
-
-    public void addProductToCategory(Product product, Long categoryId) {
-        if (product == null) {
-            throw new IllegalArgumentException("Product cannot be null");
-        }
-        if (categoryId == null) {
-            throw new IllegalArgumentException("Category ID cannot be null");
-        }
-
-        transactionManager.doInTransaction(em -> {
-            Category category = categoryRepository.findById(categoryId);
-            if (category != null) {
-                product.setCategory(category);
-                productRepository.save(product);
-            } else {
-                throw new IllegalArgumentException("Category with ID " + categoryId + " not found");
-            }
             return null;
         });
     }

@@ -22,10 +22,10 @@ public class Main {
                 categoryRepository.save(food);
 
                 Product sampleProduct = new Product("Mechanical Keyboard", 89.99);
-                productRepository.save(sampleProduct);
+                productRepository.save(em, sampleProduct);
 
                 sampleProduct.setCategory(electronics);
-                productRepository.save(sampleProduct);
+                productRepository.save(em, sampleProduct);
                 
                 return null;
             });

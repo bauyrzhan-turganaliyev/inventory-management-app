@@ -69,7 +69,18 @@ class InventoryServiceTest {
         inventoryService.addProductToCategory(product, catId);
 
         verify(product).setCategory(category);
-        verify(productRepository).save(product);
+        verify(productRepository).save(null, product);
+    }
+
+    @Test
+    void testAddProductSuccess() {
+        Product product = new Product("Test Product", 10.0);
+
+        when(transactionManager.doInTransaction(any())).thenAnswer(inv -> executeTransaction(inv.getArgument(0)));
+
+        inventoryService.addProduct(product);
+
+        verify(productRepository).save(null, product);
     }
 
     @Test
@@ -88,17 +99,6 @@ class InventoryServiceTest {
         inventoryService.deleteProduct(1L);
 
         verify(productRepository).deleteById(1L);
-    }
-    
-    @Test
-    void testAddProductSuccess() {
-        Product product = new Product("Test Product", 10.0);
-        
-        when(transactionManager.doInTransaction(any())).thenAnswer(inv -> executeTransaction(inv.getArgument(0)));
-        
-        inventoryService.addProduct(product);
-        
-        verify(productRepository).save(product); 
     }
     
     @Test

@@ -41,13 +41,12 @@ class ProductJpaRepositoryTest {
 
     @Test
     void testSaveNewProduct() {
-        Product p = mock(Product.class);
-        when(p.getId()).thenReturn(null);
+        Product p = new Product("New Product", 10.0);
         
-        repository.save(p);
+        repository.save(em, p);
         
         verify(em).persist(p);
-        verify(em, never()).merge(any());
+        verify(em).flush();
     }
 
     @Test
@@ -55,7 +54,7 @@ class ProductJpaRepositoryTest {
         Product p = mock(Product.class);
         when(p.getId()).thenReturn(1L);
         
-        repository.save(p);
+        repository.save(em, p);
         
         verify(em).merge(p);
         verify(em, never()).persist(any());

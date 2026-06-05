@@ -34,16 +34,13 @@ class ProductRepositoryIT {
     @Test
     void testSaveProduct() {
         Product product = new Product("New Product", 10.0);
-
         transactionManager.doInTransaction(em -> {
-            new ProductJpaRepository(em).save(product);
+            new ProductJpaRepository(em).save(em, product);
             return null;
         });
-
-        Product found = transactionManager.doInTransaction(em -> 
+        Product found = transactionManager.doInTransaction(em ->
             em.find(Product.class, product.getId())
         );
-
         assertThat(found).isNotNull();
         assertThat(found.getName()).isEqualTo("New Product");
     }
@@ -51,18 +48,17 @@ class ProductRepositoryIT {
     @Test
     void testDeleteById() {
         Product product = new Product("To Be Deleted", 10.00);
-
         transactionManager.doInTransaction(em -> {
-            new ProductJpaRepository(em).save(product);
+            new ProductJpaRepository(em).save(em, product);
             return null;
         });
-
         transactionManager.doInTransaction(em -> {
             new ProductJpaRepository(em).deleteById(product.getId());
             return null;
         });
-
-        Product found = transactionManager.doInTransaction(em -> em.find(Product.class, product.getId()));
+        Product found = transactionManager.doInTransaction(em ->
+            em.find(Product.class, product.getId())
+        );
         assertThat(found).isNull();
     }
 }

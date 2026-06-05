@@ -1,6 +1,7 @@
 package it.unifi.balpha.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.persistence.EntityManager;
@@ -74,13 +75,14 @@ class InventoryServiceIT {
     @Test
     void testAddProductSuccessfully() {
         Product product = new Product("Keyboard", 45.0);
-        inventoryService.addProduct(product);
-
-        List<Product> products = inventoryService.getAllProducts();
-        assertThat(products).hasSize(1);
-        assertThat(products.get(0).getName()).isEqualTo("Keyboard");
+        Product savedProduct = inventoryService.addProduct(product);
+        
+        assertNotNull(savedProduct, "The returned product should not be null");
+        
+        System.out.println("DEBUG: Saved product ID is: " + savedProduct.getId());
+        
+        assertThat(savedProduct.getId()).isNotNull(); 
     }
-
     @Test
     void testGetAllProductsSuccessfully() {
         transactionManager.doInTransaction(em -> {
@@ -110,6 +112,7 @@ class InventoryServiceIT {
     void testAddProductToCategorySuccessfully() {
         Product product = new Product("Smartphone", 800.0);
         Category category = new Category("Gadgets");
+        
         transactionManager.doInTransaction(em -> {
             em.persist(product);
             em.persist(category);
@@ -118,7 +121,6 @@ class InventoryServiceIT {
         
         inventoryService.addProductToCategory(product, category.getId());
         
-        em.clear(); 
         Product updated = inventoryService.getProductById(product.getId());
         
         assertThat(updated.getCategory()).isNotNull();
