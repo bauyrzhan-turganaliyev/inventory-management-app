@@ -86,13 +86,14 @@ class InventoryViewTest {
         inventoryView.setPresenter(presenter);
 
         Category testCategory = new Category("Electronics");
-        
+
         GuiActionRunner.execute(() -> inventoryView.getCategoryComboBox().addItem(testCategory));
-        
+
         window.comboBox("categoryComboBox").selectItem("Electronics");
         window.textBox("nameTextBox").enterText("Mouse");
         window.textBox("priceTextBox").enterText("25.00");
 
+        window.button("addProductButton").requireEnabled();
         window.button("addProductButton").click();
 
         verify(presenter).addProduct("Mouse", 25.00, testCategory);
