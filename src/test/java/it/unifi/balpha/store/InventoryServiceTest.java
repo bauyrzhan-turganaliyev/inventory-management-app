@@ -35,8 +35,6 @@ class InventoryServiceTest {
             .thenAnswer(inv -> ((TransactionWork<?>) inv.getArgument(0)).execute(em));
     }
 
-    // --- null guard clauses (no transaction involved) ---
-
     @Test
     void testAddProductWithNullShouldThrow() {
         assertThrows(IllegalArgumentException.class, () -> inventoryService.addProduct(null));
@@ -59,8 +57,6 @@ class InventoryServiceTest {
             () -> inventoryService.addProductToCategory(new Product("Test", 5.50), null));
     }
 
-    // --- getProductById ---
-
     @Test
     void testGetProductByIdReturnsProduct() {
         stubTransaction();
@@ -78,8 +74,6 @@ class InventoryServiceTest {
         assertThat(inventoryService.getProductById(99L)).isNull();
     }
 
-    // --- getAllProducts ---
-
     @Test
     void testGetAllProductsReturnsProducts() {
         stubTransaction();
@@ -91,8 +85,6 @@ class InventoryServiceTest {
         assertThat(inventoryService.getAllProducts()).isEqualTo(products);
     }
 
-    // --- getAllCategories ---
-
     @Test
     void testGetAllCategoriesReturnsCategories() {
         stubTransaction();
@@ -103,8 +95,6 @@ class InventoryServiceTest {
 
         assertThat(inventoryService.getAllCategories()).isEqualTo(categories);
     }
-
-    // --- addProduct ---
 
     @Test
     void testAddProductReturnsPersistedProduct() {
@@ -119,8 +109,6 @@ class InventoryServiceTest {
         assertThat(result).isSameAs(product);
     }
 
-    // --- deleteProduct ---
-
     @Test
     void testDeleteProductCallsRemove() {
         stubTransaction();
@@ -131,8 +119,6 @@ class InventoryServiceTest {
 
         verify(em).remove(product);
     }
-
-    // --- addProductToCategory ---
 
     @Test
     void testAddProductToCategorySetsCategory() {

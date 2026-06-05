@@ -118,6 +118,8 @@ public class InventoryView extends JFrame {
         };
         nameTextBox.getDocument().addDocumentListener(fieldsListener);
         priceTextBox.getDocument().addDocumentListener(fieldsListener);
+
+        categoryComboBox.addActionListener(e -> checkFields());
     }
     
     public void showProducts(List<Product> products) {
