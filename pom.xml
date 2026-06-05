@@ -38,6 +38,7 @@
 							    <param>it.unifi.balpha.store.CategoryTest</param>
 							    <param>it.unifi.balpha.store.ProductTest</param>
 							    <param>it.unifi.balpha.store.InventoryServiceTest</param>
+							    <param>it.unifi.balpha.store.ProductJpaRepositoryTest</param>
 							</targetTests>
 					        
 					        <jvmArgs>
