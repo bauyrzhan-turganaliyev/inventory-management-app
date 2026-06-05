@@ -130,4 +130,19 @@ class ProductJpaRepositoryTest {
         repository.deleteById(999L);
         em.getTransaction().commit();
     }
+    
+    @Test
+    void testSaveExistingProductReturnsMergedProduct() {
+        Product p = new Product("Original", 10.0);
+        em.getTransaction().begin();
+        em.persist(p);
+        em.flush();
+        em.getTransaction().commit();
+
+        em.getTransaction().begin();
+        Product returned = repository.save(p);
+        em.getTransaction().commit();
+
+        assertThat(returned).isNotNull();
+    }
 }
