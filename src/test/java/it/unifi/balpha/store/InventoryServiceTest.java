@@ -2,37 +2,49 @@ package it.unifi.balpha.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 
-@ExtendWith(MockitoExtension.class)
 class InventoryServiceTest {
 
-    @Mock
+    private static EntityManagerFactory emf;
     private JpaTransactionManager transactionManager;
-
-    @Mock
-    private EntityManager em;
-
     private InventoryService inventoryService;
+
+    @BeforeAll
+    static void setUpFactory() {
+        emf = Persistence.createEntityManagerFactory("inventory-pu", Map.of(
+            "jakarta.persistence.jdbc.url",      "jdbc:h2:mem:servicedb;DB_CLOSE_DELAY=-1",
+            "jakarta.persistence.jdbc.driver",   "org.h2.Driver",
+            "jakarta.persistence.jdbc.user",     "sa",
+            "jakarta.persistence.jdbc.password", "",
+            "hibernate.hbm2ddl.auto",            "create-drop",
+            "hibernate.dialect",                 "org.hibernate.dialect.H2Dialect"
+        ));
+    }
+
+    @AfterAll
+    static void tearDownFactory() {
+        if (emf != null) emf.close();
+    }
 
     @BeforeEach
     void setUp() {
+        transactionManager = new JpaTransactionManager(emf);
         inventoryService = new InventoryService(transactionManager);
-    }
-
-    private void stubTransaction() {
-        when(transactionManager.doInTransaction(any()))
-            .thenAnswer(inv -> ((TransactionWork<?>) inv.getArgument(0)).execute(em));
+        transactionManager.doInTransaction(em -> {
+            em.createQuery("DELETE FROM Product").executeUpdate();
+            em.createQuery("DELETE FROM Category").executeUpdate();
+            return null;
+        });
     }
 
     @Test
@@ -59,87 +71,76 @@ class InventoryServiceTest {
 
     @Test
     void testGetProductByIdReturnsProduct() {
-        stubTransaction();
-        Product expected = new Product("Mouse", 25.0);
-        when(em.find(Product.class, 1L)).thenReturn(expected);
+        Product product = new Product("Mouse", 25.0);
+        transactionManager.doInTransaction(em -> { em.persist(product); return null; });
 
-        assertThat(inventoryService.getProductById(1L)).isEqualTo(expected);
+        assertThat(inventoryService.getProductById(product.getId())).isNotNull();
     }
 
     @Test
     void testGetProductByIdReturnsNullWhenNotFound() {
-        stubTransaction();
-        when(em.find(Product.class, 99L)).thenReturn(null);
-
-        assertThat(inventoryService.getProductById(99L)).isNull();
+        assertThat(inventoryService.getProductById(999L)).isNull();
     }
 
     @Test
     void testGetAllProductsReturnsProducts() {
-        stubTransaction();
-        List<Product> products = List.of(new Product("A", 1.0));
-        TypedQuery<Product> query = mock(TypedQuery.class);
-        when(em.createQuery("FROM Product", Product.class)).thenReturn(query);
-        when(query.getResultList()).thenReturn(products);
+        transactionManager.doInTransaction(em -> { em.persist(new Product("A", 1.0)); return null; });
 
-        assertThat(inventoryService.getAllProducts()).isEqualTo(products);
+        List<Product> result = inventoryService.getAllProducts();
+        assertThat(result).extracting(Product::getName).containsExactly("A");
     }
 
     @Test
     void testGetAllCategoriesReturnsCategories() {
-        stubTransaction();
-        List<Category> categories = List.of(new Category("Electronics"));
-        TypedQuery<Category> query = mock(TypedQuery.class);
-        when(em.createQuery("FROM Category", Category.class)).thenReturn(query);
-        when(query.getResultList()).thenReturn(categories);
+        transactionManager.doInTransaction(em -> { em.persist(new Category("Electronics")); return null; });
 
-        assertThat(inventoryService.getAllCategories()).isEqualTo(categories);
+        List<Category> result = inventoryService.getAllCategories();
+        assertThat(result).extracting(Category::getName).containsExactly("Electronics");
     }
 
     @Test
     void testAddProductReturnsPersistedProduct() {
-        stubTransaction();
         Product product = new Product("Keyboard", 45.0);
 
         Product result = inventoryService.addProduct(product);
 
-        verify(em).persist(product);
-        verify(em).flush();
         assertThat(result).isNotNull();
-        assertThat(result).isSameAs(product);
+        assertThat(result.getId()).isNotNull();
     }
 
     @Test
-    void testDeleteProductCallsRemove() {
-        stubTransaction();
+    void testDeleteProductRemovesIt() {
         Product product = new Product("ToDelete", 10.0);
-        when(em.find(Product.class, 1L)).thenReturn(product);
+        transactionManager.doInTransaction(em -> { em.persist(product); return null; });
 
-        inventoryService.deleteProduct(1L);
+        inventoryService.deleteProduct(product.getId());
 
-        verify(em).remove(product);
+        assertThat(inventoryService.getProductById(product.getId())).isNull();
     }
 
     @Test
     void testAddProductToCategorySetsCategory() {
-        stubTransaction();
         Product product = new Product("Smartphone", 800.0);
         Category category = new Category("Gadgets");
-        when(em.find(Category.class, 1L)).thenReturn(category);
+        transactionManager.doInTransaction(em -> {
+            em.persist(product);
+            em.persist(category);
+            return null;
+        });
 
-        inventoryService.addProductToCategory(product, 1L);
+        inventoryService.addProductToCategory(product, category.getId());
 
-        assertThat(product.getCategory()).isEqualTo(category);
-        verify(em).persist(product);
-        verify(em).flush();
+        Product updated = inventoryService.getProductById(product.getId());
+        assertThat(updated.getCategory()).isNotNull();
+        assertThat(updated.getCategory().getName()).isEqualTo("Gadgets");
     }
 
     @Test
     void testAddProductToCategoryThrowsWhenCategoryNotFound() {
-        stubTransaction();
-        when(em.find(Category.class, 999L)).thenReturn(null);
+        Product product = new Product("Mouse", 25.0);
+        transactionManager.doInTransaction(em -> { em.persist(product); return null; });
 
         assertThrows(IllegalArgumentException.class,
-            () -> inventoryService.addProductToCategory(new Product("Mouse", 25.0), 999L));
+            () -> inventoryService.addProductToCategory(product, 999L));
     }
 }
