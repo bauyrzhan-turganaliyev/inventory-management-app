@@ -4,36 +4,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 class InventoryServiceIT {
-    private static PostgreSQLContainer<?> postgres;
+    @SuppressWarnings("resource") // lifecycle managed by @Container
+    private static final PostgreSQLContainer<?> postgres =
+        new PostgreSQLContainer<>("postgres:15-alpine")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
     private static EntityManagerFactory emf;
-    private EntityManager em;
     private JpaTransactionManager transactionManager;
     private InventoryService inventoryService;
     
     @BeforeAll
     static void beforeAll() {
+    	// Override Docker API version: Testcontainers bundles an older client (1.32),
+    	// but Docker Desktop requires minimum 1.40. This property forces the correct version.
     	System.setProperty("api.version", "1.44");
     	
-        postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-                .withDatabaseName("testdb")
-                .withUsername("test")
-                .withPassword("test");
         postgres.start();
-
         Map<String, String> configOverrides = new HashMap<>();
         configOverrides.put("jakarta.persistence.jdbc.url", postgres.getJdbcUrl());
         configOverrides.put("jakarta.persistence.jdbc.user", postgres.getUsername());
@@ -52,7 +51,6 @@ class InventoryServiceIT {
 
     @BeforeEach
     void setUp() {
-        em = emf.createEntityManager();
         transactionManager = new JpaTransactionManager(emf);
         
         inventoryService = new InventoryService(transactionManager);
@@ -64,11 +62,6 @@ class InventoryServiceIT {
         });
     }
 
-    @AfterEach
-    void tearDown() {
-        if (em != null) em.close();
-    }
-
     @Test
     void testAddProductSuccessfully() {
         Product product = new Product("Keyboard", 45.0);
@@ -76,10 +69,9 @@ class InventoryServiceIT {
         
         assertNotNull(savedProduct, "The returned product should not be null");
         
-        System.out.println("DEBUG: Saved product ID is: " + savedProduct.getId());
-        
         assertThat(savedProduct.getId()).isNotNull(); 
     }
+    
     @Test
     void testGetAllProductsSuccessfully() {
         transactionManager.doInTransaction(em -> {
@@ -162,4 +154,6 @@ class InventoryServiceIT {
         assertThat(found).isNotNull();
         assertThat(found.getName()).isEqualTo("Smartphone");
     }
+
+
 }
