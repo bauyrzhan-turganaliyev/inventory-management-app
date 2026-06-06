@@ -79,15 +79,17 @@ class InventoryViewTest {
     void testCategoryComboBoxShouldBePresent() {
         assertNotNull(window.comboBox("categoryComboBox").target());
     }
-
+    
     @Test
     void testAddButtonShouldCallPresenterWithCorrectDataAndCategory() {
         InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
-        inventoryView.setPresenter(presenter);
 
         Category testCategory = new Category("Electronics");
 
-        GuiActionRunner.execute(() -> inventoryView.getCategoryComboBox().addItem(testCategory));
+        GuiActionRunner.execute(() -> {
+            inventoryView.getCategoryComboBox().addItem(testCategory);
+            inventoryView.setPresenter(presenter);
+        });
 
         window.comboBox("categoryComboBox").selectItem("Electronics");
         window.textBox("nameTextBox").enterText("Mouse");
