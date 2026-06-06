@@ -60,7 +60,10 @@ class ProductJpaRepositoryTest {
         em.flush();
         em.getTransaction().commit();
 
-        assertThat(repository.findById(p.getId())).isNotNull();
+        Product found = repository.findById(p.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getName()).isEqualTo("Test");
     }
 
     @Test
@@ -78,8 +81,7 @@ class ProductJpaRepositoryTest {
         List<Product> result = repository.findAll();
 
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(Product::getName)
-            .containsExactlyInAnyOrder("A", "B");
+        assertThat(result).extracting(Product::getName).containsExactlyInAnyOrder("A", "B");
     }
 
     @Test
@@ -132,8 +134,36 @@ class ProductJpaRepositoryTest {
     }
     
     @Test
+    void testSaveNewProductAssignsIdAfterFlush() {
+        Product p = new Product("Flush Test", 5.0);
+
+        em.getTransaction().begin();
+        repository.save(p);
+        em.getTransaction().commit();
+
+        EntityManager em2 = emf.createEntityManager();
+        try {
+            assertThat(em2.find(Product.class, p.getId())).isNotNull();
+        } finally {
+            em2.close();
+        }
+    }
+    
+    @Test
+    void testSaveNewProductReturnsPersistedProduct() {
+        Product p = new Product("Return Test", 5.0);
+
+        em.getTransaction().begin();
+        Product returned = repository.save(p);
+        em.getTransaction().commit();
+
+        assertThat(returned).isNotNull();
+        assertThat(returned).isSameAs(p);
+    }
+    
+    @Test
     void testSaveExistingProductReturnsMergedProduct() {
-        Product p = new Product("Original", 10.0);
+        Product p = new Product("Merge Return Test", 10.0);
         em.getTransaction().begin();
         em.persist(p);
         em.flush();

@@ -24,7 +24,6 @@ public class ProductJpaRepository implements ProductRepository {
     public Product save(Product product) {
         if (product.getId() == null) {
             em.persist(product);
-            em.flush();
             return product;
         } else {
             return em.merge(product);
