@@ -2,6 +2,7 @@ package it.unifi.balpha.store;
 
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 class InventoryViewTest {
     private InventoryView inventoryView;
@@ -90,15 +92,15 @@ class InventoryViewTest {
         window.comboBox("categoryComboBox").selectItem("Electronics");
 
         window.button("addProductButton").requireEnabled();
-        window.button("addProductButton").click();
+        
+        GuiActionRunner.execute(() -> inventoryView.getAddProductButton().doClick());
 
-        org.awaitility.Awaitility.await()
-            .atMost(5, java.util.concurrent.TimeUnit.SECONDS)
+        Awaitility.await()
+            .atMost(5, TimeUnit.SECONDS)
             .untilAsserted(() ->
                 verify(presenter).addProduct("Mouse", 25.00, testCategory)
             );
     }
-
     @Test
     void testProductsTableShouldBePresent() {
         assertNotNull(window.table("productsTable").target());
@@ -136,7 +138,9 @@ class InventoryViewTest {
         GuiActionRunner.execute(() -> inventoryView.showProducts(products));
 
         window.table("productsTable").selectRows(0);
-        window.button("deleteProductButton").click();
+        window.button("deleteProductButton").requireEnabled();
+        
+        GuiActionRunner.execute(() -> inventoryView.getDeleteProductButton().doClick());
 
         verify(presenter).deleteProduct(productToDelete);
     }
