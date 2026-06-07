@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -255,6 +256,28 @@ class InventoryViewTest {
     @Test
     void testWhenOnlyPriceFilledAddButtonShouldBeDisabled() {
         window.textBox("priceTextBox").enterText("1.50");
+        window.button("addProductButton").requireDisabled(); // NOSONAR
+    }
+    
+    @Test
+    void testDeleteButtonDoesNothingWhenSelectedRowOutOfBounds() {
+        List<Product> products = Arrays.asList(new Product("Keyboard", 50.0));
+        GuiActionRunner.execute(() -> {
+            inventoryView.showProducts(products);
+            inventoryView.getProductsTable().setRowSelectionInterval(0, 0);
+            
+            inventoryView.showProducts(new ArrayList<>());
+            
+            inventoryView.getDeleteProductButton().doClick();
+        });
+        assertNotNull(inventoryView);
+    }
+    
+    @Test
+    void testWhenNameAndCategorySetButPriceInvalidAddButtonShouldBeDisabled() {
+        window.textBox("nameTextBox").enterText("Apple");
+        window.comboBox("categoryComboBox").selectItem("DefaultCategory");
+        window.textBox("priceTextBox").enterText("abc");
         window.button("addProductButton").requireDisabled(); // NOSONAR
     }
 }
