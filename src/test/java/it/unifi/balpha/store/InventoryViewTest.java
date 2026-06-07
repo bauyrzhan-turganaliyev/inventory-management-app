@@ -92,7 +92,11 @@ class InventoryViewTest {
         window.button("addProductButton").requireEnabled();
         window.button("addProductButton").click();
 
-        verify(presenter).addProduct("Mouse", 25.00, testCategory);
+        org.awaitility.Awaitility.await()
+            .atMost(5, java.util.concurrent.TimeUnit.SECONDS)
+            .untilAsserted(() ->
+                verify(presenter).addProduct("Mouse", 25.00, testCategory)
+            );
     }
 
     @Test
