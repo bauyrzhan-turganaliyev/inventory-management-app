@@ -61,6 +61,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>11</maven.compiler.release>
     <junit.version>5.10.2</junit.version>
+    
+    <sonar.projectKey>bauyrzhan-turganaliyev_inventory-management-app</sonar.projectKey>
+    <sonar.organization>bauyrzhan-turganaliyev</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.coverage.exclusions>**/Main.java</sonar.coverage.exclusions>
   </properties>
 
   <dependencies>
@@ -130,7 +135,11 @@
 	    <version>1.19.3</version>
 	    <scope>test</scope>
 	</dependency>
-	
+	<dependency>
+	    <groupId>org.sonarsource.scanner.maven</groupId>
+	    <artifactId>sonar-maven-plugin</artifactId>
+	    <version>3.11.0.3922</version>
+	</dependency>
   </dependencies>
 
   <build>
