@@ -165,4 +165,5 @@ public class InventoryView extends JFrame {
     public JTextField getPriceTextBox() { return priceTextBox; }
     public JButton getAddProductButton() { return addProductButton; }
     public JButton getDeleteProductButton() { return deleteProductButton; }
+    public JTable getProductsTable() { return productsTable; }
 }

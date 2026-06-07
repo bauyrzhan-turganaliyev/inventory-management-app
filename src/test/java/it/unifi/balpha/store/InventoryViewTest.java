@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class InventoryViewTest {
+
     private InventoryView inventoryView;
     private FrameFixture window;
     private Category defaultCategory;
@@ -119,8 +120,13 @@ class InventoryViewTest {
     void testDeleteButtonShouldBeDisabledUntilAnItemIsSelected() {
         List<Product> products = Arrays.asList(new Product("Keyboard", 50.0));
         GuiActionRunner.execute(() -> inventoryView.showProducts(products));
+
         window.button("deleteProductButton").requireDisabled();
-        window.table("productsTable").selectRows(0);
+
+        GuiActionRunner.execute(() ->
+            inventoryView.getProductsTable().setRowSelectionInterval(0, 0)
+        );
+
         window.button("deleteProductButton").requireEnabled(); // NOSONAR - AssertJ Swing require* methods are assertions
     }
 
@@ -129,7 +135,11 @@ class InventoryViewTest {
         Product productToDelete = new Product("Keyboard", 50.0);
         List<Product> products = Arrays.asList(productToDelete);
         GuiActionRunner.execute(() -> inventoryView.showProducts(products));
-        window.table("productsTable").selectRows(0);
+
+        GuiActionRunner.execute(() ->
+            inventoryView.getProductsTable().setRowSelectionInterval(0, 0)
+        );
+
         window.button("deleteProductButton").requireEnabled();
         GuiActionRunner.execute(() -> inventoryView.getDeleteProductButton().doClick());
         verify(presenter).deleteProduct(productToDelete);
