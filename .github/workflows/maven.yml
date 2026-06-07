@@ -1,4 +1,4 @@
-name: Java CI with Maven and PostgreSQL
+name: Java CI with Maven
 
 on:
   push:
@@ -10,22 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: inventory_db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-    
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -36,12 +20,28 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-    - name: Start Xvfb (Virtual Framebuffer)
+
+    - name: Start Xvfb
       run: |
-        sudo apt-get update
+        sudo apt-get update -q
         sudo apt-get install -y xvfb
         Xvfb :99 -screen 0 1024x768x24 &
         echo "DISPLAY=:99" >> $GITHUB_ENV
 
     - name: Build and Verify with Maven
       run: xvfb-run -a mvn clean verify
+
+    - name: Coveralls
+      run: >
+        xvfb-run -a mvn coveralls:report
+        -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
+        --no-transfer-progress
+
+    - name: SonarCloud
+      run: >
+        xvfb-run -a mvn sonar:sonar
+        -Dsonar.projectKey=YOUR_PROJECT_KEY
+        -Dsonar.organization=YOUR_ORG
+        -Dsonar.host.url=https://sonarcloud.io
+        -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+        --no-transfer-progress
