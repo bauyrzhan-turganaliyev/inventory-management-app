@@ -111,7 +111,7 @@ public class InventoryView extends JFrame {
         DocumentListener fieldsListener = new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { checkFields(); }
             @Override public void removeUpdate(DocumentEvent e) { checkFields(); }
-            @Override public void changedUpdate(DocumentEvent e) { }
+            @Override public void changedUpdate(DocumentEvent e) { /* plain JTextField never fires this */ }
         };
         nameTextBox.getDocument().addDocumentListener(fieldsListener);
         priceTextBox.getDocument().addDocumentListener(fieldsListener);
@@ -162,7 +162,6 @@ public class InventoryView extends JFrame {
     public JComboBox<Category> getCategoryComboBox() { return categoryComboBox; }
     public boolean isProductTableEditable(int row, int col) { return productsTable.isCellEditable(row, col); }
     public JTextField getNameTextBox() { return nameTextBox; }
-    public JTextField getPriceTextBox() { return priceTextBox; }
     public JButton getAddProductButton() { return addProductButton; }
     public JButton getDeleteProductButton() { return deleteProductButton; }
     public JTable getProductsTable() { return productsTable; }

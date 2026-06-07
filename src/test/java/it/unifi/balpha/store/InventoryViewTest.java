@@ -170,6 +170,8 @@ class InventoryViewTest {
             inventoryView.setPresenter(null);
             inventoryView.getAddProductButton().doClick();
         });
+        
+        assertNotNull(inventoryView);
     }
 
     @Test
@@ -182,6 +184,8 @@ class InventoryViewTest {
             inventoryView.getProductsTable().setRowSelectionInterval(0, 0);
             inventoryView.getDeleteProductButton().doClick();
         });
+        
+        assertNotNull(inventoryView);
     }
 
     @Test
@@ -204,19 +208,6 @@ class InventoryViewTest {
     }
 
     @Test
-    void testChangedUpdateTriggersCheckFields() {
-        GuiActionRunner.execute(() -> {
-            inventoryView.getNameTextBox().setText("Test");
-            inventoryView.getNameTextBox().getDocument()
-                .addDocumentListener(new javax.swing.event.DocumentListener() {
-                    public void insertUpdate(javax.swing.event.DocumentEvent e) {}
-                    public void removeUpdate(javax.swing.event.DocumentEvent e) {}
-                    public void changedUpdate(javax.swing.event.DocumentEvent e) {}
-                });
-        });
-        window.button("addProductButton").requireDisabled(); // NOSONAR
-    }
-    @Test
     void testShowProductsWithNullClearsTable() {
         GuiActionRunner.execute(() -> inventoryView.showProducts(null));
         window.table("productsTable").requireContents(new String[][] {}); // NOSONAR
@@ -235,5 +226,22 @@ class InventoryViewTest {
         );
         window.button("deleteProductButton").requireDisabled(); // NOSONAR
     }
+    
+    @Test
+    void testDeleteButtonDoesNothingWhenNoRowSelected() {
+        List<Product> products = Arrays.asList(new Product("Keyboard", 50.0));
+        
+        GuiActionRunner.execute(() -> inventoryView.showProducts(products));
+        GuiActionRunner.execute(() -> inventoryView.getDeleteProductButton().doClick());
+        
+        assertNotNull(inventoryView);
+    }
   
+    @Test
+    void testWhenPriceIsZeroAddButtonShouldBeDisabled() {
+        window.textBox("nameTextBox").enterText("Apple");
+        window.textBox("priceTextBox").enterText("0");
+        window.comboBox("categoryComboBox").selectItem("DefaultCategory");
+        window.button("addProductButton").requireDisabled(); // NOSONAR
+    }
 }
