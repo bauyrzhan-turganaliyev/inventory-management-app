@@ -15,20 +15,21 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 
 class InventoryViewTest {
-
     private InventoryView inventoryView;
     private FrameFixture window;
     private Category defaultCategory;
+    private InventoryPresenter presenter;
 
     @BeforeEach
     void setUp() throws InterruptedException, InvocationTargetException {
+        presenter = Mockito.mock(InventoryPresenter.class);
         GuiActionRunner.execute(() -> {
             inventoryView = new InventoryView();
-            
+            inventoryView.setPresenter(presenter);
             defaultCategory = new Category("DefaultCategory");
             inventoryView.getCategoryComboBox().addItem(defaultCategory);
         });
-        
+
         window = new FrameFixture(inventoryView);
         window.show();
     }
@@ -44,12 +45,11 @@ class InventoryViewTest {
         window.textBox("priceTextBox").requireText("");
         window.button("addProductButton").requireDisabled();
     }
-    
+
     @Test
     void testWhenFieldsAreFilledAddButtonShouldBeEnabled() {
         window.textBox("nameTextBox").enterText("Apple");
         window.textBox("priceTextBox").enterText("1.50");
-        
         window.comboBox("categoryComboBox").selectItem("DefaultCategory");
 
         window.button("addProductButton").requireEnabled();
@@ -79,17 +79,11 @@ class InventoryViewTest {
     void testCategoryComboBoxShouldBePresent() {
         assertNotNull(window.comboBox("categoryComboBox").target());
     }
-    
+
     @Test
     void testAddButtonShouldCallPresenterWithCorrectDataAndCategory() {
-        InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
-
         Category testCategory = new Category("Electronics");
-
-        GuiActionRunner.execute(() -> {
-            inventoryView.getCategoryComboBox().addItem(testCategory);
-            inventoryView.setPresenter(presenter);
-        });
+        GuiActionRunner.execute(() -> inventoryView.getCategoryComboBox().addItem(testCategory));
 
         window.comboBox("categoryComboBox").selectItem("Electronics");
         window.textBox("nameTextBox").enterText("Mouse");
@@ -100,7 +94,7 @@ class InventoryViewTest {
 
         verify(presenter).addProduct("Mouse", 25.00, testCategory);
     }
-    
+
     @Test
     void testProductsTableShouldBePresent() {
         assertNotNull(window.table("productsTable").target());
@@ -120,26 +114,21 @@ class InventoryViewTest {
             { "Mouse", "25.0" }
         });
     }
-    
+
     @Test
     void testDeleteButtonShouldBeDisabledUntilAnItemIsSelected() {
-        java.util.List<Product> products = java.util.Arrays.asList(new Product("Keyboard", 50.0));
+        List<Product> products = java.util.Arrays.asList(new Product("Keyboard", 50.0));
         GuiActionRunner.execute(() -> inventoryView.showProducts(products));
 
         window.button("deleteProductButton").requireDisabled();
-
         window.table("productsTable").selectRows(0);
-
         window.button("deleteProductButton").requireEnabled();
     }
 
     @Test
     void testDeleteButtonShouldCallPresenterWithCorrectProduct() {
-        InventoryPresenter presenter = Mockito.mock(InventoryPresenter.class);
-        inventoryView.setPresenter(presenter);
-
         Product productToDelete = new Product("Keyboard", 50.0);
-        java.util.List<Product> products = java.util.Arrays.asList(productToDelete);
+        List<Product> products = java.util.Arrays.asList(productToDelete);
         GuiActionRunner.execute(() -> inventoryView.showProducts(products));
 
         window.table("productsTable").selectRows(0);
@@ -147,13 +136,13 @@ class InventoryViewTest {
 
         verify(presenter).deleteProduct(productToDelete);
     }
-    
+
     @Test
     void testTableCellsAreNotEditable() {
-        assertFalse(inventoryView.isProductTableEditable(0, 0), 
+        assertFalse(inventoryView.isProductTableEditable(0, 0),
             "Table cells should not be editable");
     }
-    
+
     @Test
     void testFieldsListenerTriggersCheckFieldsOnAllEvents() {
         window.textBox("nameTextBox").enterText("A");
