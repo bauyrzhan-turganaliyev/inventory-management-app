@@ -38,10 +38,10 @@ jobs:
         xvfb-run -a mvn coveralls:report
         -DrepoToken=${{ secrets.COVERALLS_REPO_TOKEN }}
         --no-transfer-progress
-
+        
     - name: SonarCloud
       run: >
-        xvfb-run -a mvn sonar:sonar
+        xvfb-run -a mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar
         -Dsonar.token=${{ secrets.SONAR_TOKEN }}
         --no-transfer-progress
       env:
