@@ -216,4 +216,24 @@ class InventoryViewTest {
         });
         window.button("addProductButton").requireDisabled(); // NOSONAR
     }
+    @Test
+    void testShowProductsWithNullClearsTable() {
+        GuiActionRunner.execute(() -> inventoryView.showProducts(null));
+        window.table("productsTable").requireContents(new String[][] {}); // NOSONAR
+    }
+
+    @Test
+    void testDeleteButtonDisabledWhenSelectionCleared() {
+        List<Product> products = Arrays.asList(new Product("Keyboard", 50.0));
+        GuiActionRunner.execute(() -> inventoryView.showProducts(products));
+        GuiActionRunner.execute(() ->
+            inventoryView.getProductsTable().setRowSelectionInterval(0, 0)
+        );
+        window.button("deleteProductButton").requireEnabled();
+        GuiActionRunner.execute(() ->
+            inventoryView.getProductsTable().clearSelection()
+        );
+        window.button("deleteProductButton").requireDisabled(); // NOSONAR
+    }
+  
 }

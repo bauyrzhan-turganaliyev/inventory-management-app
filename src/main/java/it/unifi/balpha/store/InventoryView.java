@@ -111,7 +111,7 @@ public class InventoryView extends JFrame {
         DocumentListener fieldsListener = new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { checkFields(); }
             @Override public void removeUpdate(DocumentEvent e) { checkFields(); }
-            @Override public void changedUpdate(DocumentEvent e) { checkFields(); } // NOSONAR
+            @Override public void changedUpdate(DocumentEvent e) { }
         };
         nameTextBox.getDocument().addDocumentListener(fieldsListener);
         priceTextBox.getDocument().addDocumentListener(fieldsListener);
