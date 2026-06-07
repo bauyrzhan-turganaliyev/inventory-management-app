@@ -65,14 +65,18 @@ class InventoryServiceTest {
 
     @Test
     void testAddProductToCategoryWithNullCategoryIdShouldThrow() {
+        Product product = new Product("Test", 5.50);
         assertThrows(IllegalArgumentException.class,
-            () -> inventoryService.addProductToCategory(new Product("Test", 5.50), null));
+            () -> inventoryService.addProductToCategory(product, null));
     }
 
     @Test
     void testGetProductByIdReturnsProduct() {
         Product product = new Product("Mouse", 25.0);
-        transactionManager.doInTransaction(em -> { em.persist(product); return null; });
+        transactionManager.doInTransaction(em -> {
+            em.persist(product);
+            return null;
+        });
 
         assertThat(inventoryService.getProductById(product.getId())).isNotNull();
     }
@@ -84,7 +88,10 @@ class InventoryServiceTest {
 
     @Test
     void testGetAllProductsReturnsProducts() {
-        transactionManager.doInTransaction(em -> { em.persist(new Product("A", 1.0)); return null; });
+        transactionManager.doInTransaction(em -> { 
+        	em.persist(new Product("A", 1.0)); 
+        	return null; 
+        });
 
         List<Product> result = inventoryService.getAllProducts();
         assertThat(result).extracting(Product::getName).containsExactly("A");
@@ -92,7 +99,10 @@ class InventoryServiceTest {
 
     @Test
     void testGetAllCategoriesReturnsCategories() {
-        transactionManager.doInTransaction(em -> { em.persist(new Category("Electronics")); return null; });
+        transactionManager.doInTransaction(em -> { 
+        	em.persist(new Category("Electronics")); 
+        	return null; 
+        });
 
         List<Category> result = inventoryService.getAllCategories();
         assertThat(result).extracting(Category::getName).containsExactly("Electronics");
@@ -111,7 +121,10 @@ class InventoryServiceTest {
     @Test
     void testDeleteProductRemovesIt() {
         Product product = new Product("ToDelete", 10.0);
-        transactionManager.doInTransaction(em -> { em.persist(product); return null; });
+        transactionManager.doInTransaction(em -> { 
+        	em.persist(product); 
+        	return null; 
+        });
 
         inventoryService.deleteProduct(product.getId());
 
@@ -138,7 +151,10 @@ class InventoryServiceTest {
     @Test
     void testAddProductToCategoryThrowsWhenCategoryNotFound() {
         Product product = new Product("Mouse", 25.0);
-        transactionManager.doInTransaction(em -> { em.persist(product); return null; });
+        transactionManager.doInTransaction(em -> { 
+        	em.persist(product); 
+        	return null; 
+        });
 
         assertThrows(IllegalArgumentException.class,
             () -> inventoryService.addProductToCategory(product, 999L));

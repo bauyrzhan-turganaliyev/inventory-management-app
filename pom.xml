@@ -66,6 +66,14 @@
     <sonar.organization>bauyrzhan-turganaliyev</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.coverage.exclusions>**/Main.java</sonar.coverage.exclusions>
+	<sonar.exclusions>**/Main.java</sonar.exclusions>
+	
+	<sonar.issue.ignore.multicriteria>e11</sonar.issue.ignore.multicriteria>
+
+	<!-- AssertJ Swing require* methods are assertions but not recognized by SonarCloud.
+	     Rule S2699 is excluded for the Swing test class. -->
+	<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e11.ruleKey>
+	<sonar.issue.ignore.multicriteria.e11.resourceKey>**/InventoryViewTest.java</sonar.issue.ignore.multicriteria.e11.resourceKey>
   </properties>
 
   <dependencies>

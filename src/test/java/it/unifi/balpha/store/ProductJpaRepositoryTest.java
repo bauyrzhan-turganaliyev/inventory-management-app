@@ -1,6 +1,7 @@
 package it.unifi.balpha.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -129,7 +130,7 @@ class ProductJpaRepositoryTest {
     @Test
     void testDeleteByIdDoesNothingWhenNotFound() {
         em.getTransaction().begin();
-        repository.deleteById(999L);
+        assertDoesNotThrow(() -> repository.deleteById(999L));
         em.getTransaction().commit();
     }
     
@@ -157,8 +158,7 @@ class ProductJpaRepositoryTest {
         Product returned = repository.save(p);
         em.getTransaction().commit();
 
-        assertThat(returned).isNotNull();
-        assertThat(returned).isSameAs(p);
+        assertThat(returned).isNotNull().isSameAs(p);
     }
     
     @Test
