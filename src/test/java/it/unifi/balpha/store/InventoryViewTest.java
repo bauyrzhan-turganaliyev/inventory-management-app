@@ -168,9 +168,10 @@ class InventoryViewTest {
     void testAddButtonDoesNothingWhenPresenterIsNull() {
         GuiActionRunner.execute(() -> {
             inventoryView.setPresenter(null);
-            inventoryView.getAddProductButton().doClick();
+            for (java.awt.event.ActionListener al : inventoryView.getAddProductButton().getActionListeners()) {
+                al.actionPerformed(null);
+            }
         });
-        
         assertNotNull(inventoryView);
     }
 
@@ -242,6 +243,18 @@ class InventoryViewTest {
         window.textBox("nameTextBox").enterText("Apple");
         window.textBox("priceTextBox").enterText("0");
         window.comboBox("categoryComboBox").selectItem("DefaultCategory");
+        window.button("addProductButton").requireDisabled(); // NOSONAR
+    }
+    
+    @Test
+    void testWhenOnlyNameFilledAddButtonShouldBeDisabled() {
+        window.textBox("nameTextBox").enterText("Apple");
+        window.button("addProductButton").requireDisabled(); // NOSONAR
+    }
+
+    @Test
+    void testWhenOnlyPriceFilledAddButtonShouldBeDisabled() {
+        window.textBox("priceTextBox").enterText("1.50");
         window.button("addProductButton").requireDisabled(); // NOSONAR
     }
 }
