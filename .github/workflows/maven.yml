@@ -38,10 +38,16 @@ jobs:
         xvfb-run -a mvn coveralls:report
         -DrepoToken=${{ secrets.COVERALLS_REPO_TOKEN }}
         --no-transfer-progress
-        
+
+    - name: Set up JDK 17 for SonarCloud
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
     - name: SonarCloud
       run: >
-        xvfb-run -a mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar
+        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar
         -Dsonar.token=${{ secrets.SONAR_TOKEN }}
         --no-transfer-progress
       env:
